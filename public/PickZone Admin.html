@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PickZone Admin Panel</title>
+<link rel="icon" href="https://www.image2url.com/r2/default/images/1788805311773-68d75ded-4271-402e-93dd-dd9b79cee693.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/poppins@latest/latin-400-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/poppins@latest/latin-600-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/poppins@latest/latin-700-normal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/fonts/poppins@latest/latin-800-normal.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#6366f1;--primary-dark:#4f46e5;--primary-light:#818cf8;--secondary:#ec4899;--accent:#f59e0b;--success:#10b981;--danger:#ef4444;--bg:#f8fafc;--card:#ffffff;--text:#111827;--text-secondary:#64748b;--border:#e2e8f0;--shadow:0 10px 40px rgba(99,102,241,0.1);--gradient:linear-gradient(135deg,#6366f1 0%,#ec4899 100%);--gradient2:linear-gradient(135deg,#f59e0b 0%,#ec4899 100%);--gradient3:linear-gradient(135deg,#10b981 0%,#6366f1 100%);--gradient4:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 50%,#ec4899 100%)}
+[data-theme="dark"]{--bg:#0f172a;--card:#1e293b;--text:#F9FAFB;--text-secondary:#94a3b8;--border:#334155;--shadow:0 10px 40px rgba(0,0,0,0.4)}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.4s;overflow-x:hidden}
+
+.admin-loader{position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--gradient4);background-size:300% 300%;animation:bgShift 4s ease infinite;transition:opacity 0.8s,visibility 0.8s}
+.admin-loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+@keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.admin-loader img{width:100px;height:100px;border-radius:24px;animation:loaderBounce 1.5s ease-in-out infinite;border:4px solid rgba(255,255,255,0.3);box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+@keyframes loaderBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-25px) scale(1.1)}}
+.admin-loader h2{color:#fff;font-size:28px;font-weight:800;margin-top:20px;letter-spacing:2px}
+.admin-loader p{color:rgba(255,255,255,0.7);font-size:13px;margin-top:10px}
+.loader-bar{width:200px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin-top:20px;overflow:hidden}
+.loader-bar div{height:100%;background:#fff;border-radius:2px;animation:loaderFill 2s ease forwards}
+@keyframes loaderFill{0%{width:0}100%{width:100%}}
+
+.login-screen{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
+.login-screen.hidden{display:none}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px;width:100%;max-width:420px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.1);animation:loginPop 0.6s cubic-bezier(0.16,1,0.3,1)}
+@keyframes loginPop{from{opacity:0;transform:scale(0.8) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.login-card img{width:80px;height:80px;border-radius:20px;margin-bottom:16px;box-shadow:0 8px 20px rgba(99,102,241,0.3)}
+.login-card h2{font-size:24px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.login-card .subtitle{font-size:13px;color:var(--text-secondary);margin-bottom:24px}
+.login-card .input-group{margin-bottom:14px;text-align:left}
+.login-card label{display:block;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.login-card input{width:100%;padding:12px 16px;background:var(--bg);border:2px solid var(--border);border-radius:12px;font-size:14px;color:var(--text);transition:all 0.3s}
+.login-card input:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(99,102,241,0.1);outline:none}
+.login-card .login-btn{width:100%;padding:14px;background:var(--gradient);color:#fff;font-weight:700;font-size:15px;border-radius:12px;cursor:pointer;transition:all 0.3s;border:none;margin-top:8px}
+.login-card .login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(99,102,241,0.4)}
+.login-error{color:var(--danger);font-size:12px;margin-top:10px;display:none}
+.login-error.show{display:block;animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+.app{display:none;min-height:100vh}
+.app.active{display:flex}
+.sidebar{width:260px;background:var(--card);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--primary);border-radius:2px}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.sidebar-header img{width:40px;height:40px;border-radius:10px}
+.sidebar-header .brand{font-size:18px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar-header .brand-sub{font-size:10px;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.sidebar-nav{padding:12px;flex:1}
+.sidebar-nav .nav-label{font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1.5px;padding:12px 14px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;cursor:pointer;transition:all 0.3s;margin-bottom:2px;font-size:13px;font-weight:600;color:var(--text-secondary);position:relative;overflow:hidden}
+.nav-item:hover{background:var(--bg);color:var(--text);transform:translateX(4px)}
+.nav-item.active{background:var(--gradient);color:#fff;box-shadow:0 4px 15px rgba(99,102,241,0.3)}
+.nav-item i{width:20px;text-align:center;font-size:15px}
+.nav-item .nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;min-width:20px;text-align:center}
+.sidebar-footer{padding:16px;border-top:1px solid var(--border)}
+.sidebar-footer .admin-info{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sidebar-footer .admin-avatar{width:36px;height:36px;border-radius:10px;background:var(--gradient);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.sidebar-footer .admin-name{font-size:13px;font-weight:700;color:var(--text)}
+.sidebar-footer .admin-role{font-size:11px;color:var(--text-secondary)}
+.sidebar-footer .logout-btn{width:100%;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;color:var(--danger);cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:6px}
+.sidebar-footer .logout-btn:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+
+.main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(20px)}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left .menu-toggle{display:none;width:36px;height:36px;border-radius:8px;background:var(--bg);border:1px solid var(--border);align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--text)}
+.topbar-left h2{font-size:18px;font-weight:700}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-right .theme-toggle{width:36px;height:36px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text);transition:all 0.3s}
+.topbar-right .theme-toggle:hover{background:var(--primary);color:#fff}
+.topbar-right .live-dot{width:8px;height:8px;border-radius:50%;background:var(--success);animation:livePulse 1.5s infinite}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{box-shadow:0 0 0 6px rgba(16,185,129,0)}}
+.topbar-right .live-text{font-size:11px;font-weight:600;color:var(--success)}
+
+.content{padding:24px;flex:1}
+.page-section{display:none;animation:sectionIn 0.5s ease}
+.page-section.active{display:block}
+@keyframes sectionIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;transition:all 0.4s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.purple::before{background:var(--gradient)}
+.stat-card.pink::before{background:var(--gradient2)}
+.stat-card.green::before{background:var(--gradient3)}
+.stat-card.blue::before{background:linear-gradient(135deg,#3b82f6,#06b6d4)}
+.stat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.stat-card .sc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;margin-bottom:12px}
+.stat-card.purple .sc-icon{background:var(--gradient)}
+.stat-card.pink .sc-icon{background:var(--gradient2)}
+.stat-card.green .sc-icon{background:var(--gradient3)}
+.stat-card.blue .sc-icon{background:linear-gradient(135deg,#3b82f6,#06b6d4)}
+.stat-card .sc-value{font-size:28px;font-weight:800;color:var(--text);margin-bottom:2px}
+.stat-card .sc-label{font-size:12px;color:var(--text-secondary);font-weight:600}
+
+.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:20px;overflow:hidden;transition:all 0.3s}
+.panel:hover{box-shadow:var(--shadow)}
+.panel-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.panel-header h3{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.panel-header h3 i{color:var(--primary)}
+.panel-body{padding:20px}
+.panel-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.btn{padding:8px 16px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:6px;border:none}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:var(--gradient);color:#fff}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(99,102,241,0.4)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{box-shadow:0 6px 20px rgba(16,185,129,0.4)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{box-shadow:0 6px 20px rgba(239,68,68,0.4)}
+.btn-warning{background:var(--accent);color:#fff}
+.btn-warning:hover{box-shadow:0 6px 20px rgba(245,158,11,0.4)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:6px 12px;font-size:11px;border-radius:8px}
+.btn-lg{padding:12px 24px;font-size:14px;border-radius:12px}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid var(--border);background:var(--bg)}
+td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:hover td{background:var(--bg)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-pending{background:rgba(245,158,11,0.12);color:#d97706}
+.badge-road{background:rgba(59,130,246,0.12);color:#2563eb}
+.badge-delivered{background:rgba(16,185,129,0.12);color:#059669}
+.badge-cancelled{background:rgba(239,68,68,0.12);color:#dc2626}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text);transition:all 0.3s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,0.1);outline:none}
+.form-group textarea{resize:vertical;min-height:60px}
+.form-full{grid-column:1/-1}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);z-index:5000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.active{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;animation:modalPop 0.4s cubic-bezier(0.16,1,0.3,1)}
+@keyframes modalPop{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+.modal-box h3{font-size:20px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.modal-box h3 i{color:var(--primary)}
+.modal-close{float:right;font-size:20px;cursor:pointer;color:var(--text-secondary);transition:all 0.3s;padding:4px}
+.modal-close:hover{color:var(--danger);transform:rotate(90deg)}
+
+.toast{position:fixed;top:20px;right:20px;z-index:9000;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 20px;box-shadow:0 10px 30px rgba(0,0,0,0.15);animation:toastIn 0.4s ease;font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px;max-width:360px}
+@keyframes toastIn{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}}
+.toast.hide{animation:toastOut 0.3s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateX(100px)}}
+.toast i{font-size:18px}
+.toast.success i{color:var(--success)}
+.toast.error i{color:var(--danger)}
+.toast.info i{color:var(--primary)}
+
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);z-index:8000;display:none;align-items:center;justify-content:center;padding:20px}
+.confirm-overlay.active{display:flex}
+.confirm-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:30px;text-align:center;max-width:400px;width:100%;animation:modalPop 0.4s cubic-bezier(0.16,1,0.3,1)}
+.confirm-box .confirm-icon{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px}
+.confirm-box .confirm-icon.danger{background:rgba(239,68,68,0.1);color:var(--danger)}
+.confirm-box .confirm-icon.warning{background:rgba(245,158,11,0.1);color:var(--accent)}
+.confirm-box h3{font-size:18px;font-weight:800;margin-bottom:8px}
+.confirm-box p{font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6}
+.confirm-box .confirm-actions{display:flex;gap:10px;justify-content:center}
+
+.empty{text-align:center;padding:40px 20px;color:var(--text-secondary)}
+.empty i{font-size:48px;margin-bottom:12px;opacity:0.3}
+.empty p{font-size:14px}
+
+.search-input{padding:10px 14px 10px 38px;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:13px;color:var(--text);width:100%;max-width:300px;transition:all 0.3s}
+.search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,0.1);outline:none}
+.search-wrap{position:relative;display:inline-block}
+.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-secondary);font-size:13px}
+
+.visitor-display{display:flex;align-items:center;gap:12px;padding:16px 20px;background:var(--bg);border-radius:12px;border:1px solid var(--border)}
+.visitor-display .vd-icon{width:44px;height:44px;border-radius:12px;background:var(--gradient);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.visitor-display .vd-num{font-size:24px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.visitor-display .vd-label{font-size:11px;color:var(--text-secondary);font-weight:600}
+
+.desc-preview{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--text-secondary)}
+.desc-full{font-size:13px;line-height:1.6;color:var(--text);margin-top:8px}
+
+.customer-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}.customer-summary-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}.customer-summary-card::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--gradient)}.customer-summary-card .csc-label{font-size:11px;color:var(--text-secondary);font-weight:700;text-transform:uppercase;letter-spacing:.7px}.customer-summary-card .csc-value{font-size:24px;font-weight:800;margin-top:4px}.customer-summary-card .csc-value.money{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.customer-row-photo{width:36px;height:36px;border-radius:10px;object-fit:cover;border:1px solid var(--border);box-shadow:0 3px 10px rgba(0,0,0,.08)}.customer-avatar-fallback{width:36px;height:36px;border-radius:10px;background:var(--gradient);color:#fff;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-size:13px}.customer-main{display:flex;align-items:center;gap:9px;min-width:180px}.customer-main .cm-name{font-weight:700;line-height:1.25}.customer-main .cm-email{font-size:10px;color:var(--text-secondary);margin-top:2px}.customer-cell-muted{font-size:11px;color:var(--text-secondary)}.customer-address{max-width:230px;white-space:normal;line-height:1.45}.customer-items{max-width:260px;line-height:1.45}.customer-items .item-line{font-size:11px;margin-bottom:3px}.customer-items .item-line strong{color:var(--text)}.customer-total{font-weight:800;color:var(--secondary);white-space:nowrap}.customer-count{font-weight:800;color:var(--primary)}.customer-view-btn{min-width:34px}.customer-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.customer-detail-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px}.customer-detail-box.full{grid-column:1/-1}.customer-detail-label{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-secondary);font-weight:700;margin-bottom:4px}.customer-detail-value{font-size:13px;color:var(--text);line-height:1.5}.customer-order-card{border:1px solid var(--border);background:var(--bg);border-radius:12px;padding:12px;margin-top:10px}.customer-order-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.customer-order-id{font-weight:800;color:var(--primary)}.customer-order-meta{font-size:10px;color:var(--text-secondary)}.customer-order-items{margin-top:8px;font-size:11px;line-height:1.5}.customer-order-total{margin-top:7px;font-weight:800;color:var(--secondary)}.customer-empty-orders{text-align:center;padding:20px;color:var(--text-secondary);font-size:12px}.customer-table-wrap{border:1px solid var(--border);border-radius:14px;overflow:auto;scroll-behavior:smooth}.customer-table-wrap table{min-width:1650px}.customer-table-wrap th{position:sticky;top:0;z-index:1}.customer-table-wrap th,.customer-table-wrap td{vertical-align:top}.customer-scroll-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}.customer-scroll-hint{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-secondary)}.customer-scroll-hint i{color:var(--primary)}.customer-scroll-actions{display:flex;gap:6px;align-items:center}.customer-scroll-btn{width:32px;height:32px;border-radius:9px;background:var(--bg);border:1px solid var(--border);color:var(--text);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .25s}.customer-scroll-btn:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}.customer-horizontal-scroll{width:100%;overflow-x:auto;overflow-y:hidden;height:18px;margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg);scroll-behavior:smooth}.customer-horizontal-scroll::-webkit-scrollbar{height:12px}.customer-horizontal-scroll::-webkit-scrollbar-track{background:transparent}.customer-horizontal-scroll::-webkit-scrollbar-thumb{background:var(--primary);border-radius:20px}.customer-horizontal-scroll::-webkit-scrollbar-thumb:hover{background:var(--primary-dark)}.customer-horizontal-scroll-inner{height:1px;min-width:100%}.bulk-email-count{font-size:11px;color:var(--text-secondary);margin-top:-4px}.bulk-email-box textarea{min-height:110px}.bulk-email-box .email-note{font-size:11px;line-height:1.55;color:var(--text-secondary);margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--border)}@media(max-width:768px){
+.sidebar{transform:translateX(-100%)}
+.sidebar.open{transform:translateX(0)}
+.main{margin-left:0}
+.topbar-left .menu-toggle{display:flex}
+.form-grid{grid-template-columns:1fr}
+.stats-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+.customer-summary-grid{grid-template-columns:1fr}
+.customer-detail-grid{grid-template-columns:1fr}
+.stats-grid{grid-template-columns:1fr}
+.content{padding:16px}
+}
+</style>
+
+<style id="pz-customer-no-horizontal-scroll">
+/* Registered Customers: show every field without horizontal scrolling. */
+#sec-customers .customer-scroll-toolbar,
+#sec-customers .customer-horizontal-scroll{display:none !important}
+#sec-customers .customer-table-wrap{overflow:visible !important;border-radius:14px}
+#sec-customers .customer-table-wrap table{width:100% !important;min-width:0 !important;table-layout:fixed}
+#sec-customers .customer-table-wrap th,
+#sec-customers .customer-table-wrap td{white-space:normal;word-break:break-word;overflow-wrap:anywhere;padding:8px 7px;font-size:10px;line-height:1.35}
+#sec-customers .customer-table-wrap th{font-size:9px;letter-spacing:.25px}
+#sec-customers .customer-table-wrap th:nth-child(1){width:15%}
+#sec-customers .customer-table-wrap th:nth-child(2){width:7%}
+#sec-customers .customer-table-wrap th:nth-child(3){width:7%}
+#sec-customers .customer-table-wrap th:nth-child(4){width:6%}
+#sec-customers .customer-table-wrap th:nth-child(5){width:7%}
+#sec-customers .customer-table-wrap th:nth-child(6){width:12%}
+#sec-customers .customer-table-wrap th:nth-child(7){width:14%}
+#sec-customers .customer-table-wrap th:nth-child(8){width:5%}
+#sec-customers .customer-table-wrap th:nth-child(9){width:8%}
+#sec-customers .customer-table-wrap th:nth-child(10){width:7%}
+#sec-customers .customer-table-wrap th:nth-child(11){width:5%}
+#sec-customers .customer-table-wrap th:nth-child(12){width:7%}
+#sec-customers .customer-main{min-width:0;width:100%;gap:6px}
+#sec-customers .customer-main .cm-name,#sec-customers .customer-main .cm-email{overflow-wrap:anywhere;word-break:break-word}
+#sec-customers .customer-row-photo,#sec-customers .customer-avatar-fallback{width:28px;height:28px;border-radius:8px;flex:0 0 28px;font-size:11px}
+#sec-customers .customer-address,#sec-customers .customer-items{max-width:none;width:100%}
+#sec-customers .customer-items .item-line{font-size:9.5px;margin-bottom:2px}
+#sec-customers .customer-cell-muted{font-size:9px}
+#sec-customers .customer-total{white-space:normal}
+#sec-customers .customer-view-btn{min-width:28px}
+
+@media(max-width:1150px){
+  #sec-customers .customer-table-wrap table,
+  #sec-customers .customer-table-wrap tbody,
+  #sec-customers .customer-table-wrap tr,
+  #sec-customers .customer-table-wrap td{display:block;width:100%}
+  #sec-customers .customer-table-wrap thead{display:none}
+  #sec-customers .customer-table-wrap tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px;padding:12px 0;border-bottom:1px solid var(--border)}
+  #sec-customers .customer-table-wrap td{display:grid;grid-template-columns:112px minmax(0,1fr);gap:8px;align-items:start;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--card);min-width:0}
+  #sec-customers .customer-table-wrap td::before{content:attr(data-label);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.45px;color:var(--text-secondary);line-height:1.4}
+  #sec-customers .customer-table-wrap td > *{min-width:0}
+  #sec-customers .customer-table-wrap td[data-label="Customer"],
+  #sec-customers .customer-table-wrap td[data-label="Delivery Address"],
+  #sec-customers .customer-table-wrap td[data-label="Items Ordered"],
+  #sec-customers .customer-table-wrap td[data-label="Actions"]{grid-column:1/-1}
+  #sec-customers .customer-main{justify-content:flex-start}
+}
+
+@media(max-width:640px){
+  #sec-customers .customer-table-wrap tr{grid-template-columns:1fr}
+  #sec-customers .customer-table-wrap td{grid-template-columns:105px minmax(0,1fr)}
+  #sec-customers .customer-table-wrap td[data-label="Customer"],
+  #sec-customers .customer-table-wrap td[data-label="Delivery Address"],
+  #sec-customers .customer-table-wrap td[data-label="Items Ordered"],
+  #sec-customers .customer-table-wrap td[data-label="Actions"]{grid-column:auto}
+  #sec-customers .panel-actions{width:100%}
+  #sec-customers .panel-actions .search-wrap{width:100%;max-width:none}
+  #sec-customers .panel-actions .search-input{max-width:none}
+}
+</style>
+
+<style id="pz-admin-live-sync-css">
+.pz-admin-session-card{margin-bottom:20px}
+.pz-admin-session-list{display:grid;gap:8px}
+.pz-admin-session-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background:var(--bg)}
+.pz-admin-session-user{display:flex;align-items:center;gap:10px;min-width:0}
+.pz-admin-session-dot{width:9px;height:9px;border-radius:50%;background:var(--success);box-shadow:0 0 0 5px rgba(16,185,129,.1);flex:0 0 9px}
+.pz-admin-session-name{font-weight:700;font-size:12px}.pz-admin-session-email{font-size:10px;color:var(--text-secondary);overflow-wrap:anywhere}.pz-admin-session-time{font-size:10px;color:var(--text-secondary)}
+</style>
+
+<style id="pz-admin-password-css">
+.pz-security-panel{overflow:hidden;background:linear-gradient(135deg,rgba(99,102,241,.055),rgba(16,185,129,.045));border-color:rgba(99,102,241,.18)}
+.pz-security-badge{background:rgba(16,185,129,.10);color:#059669;border:1px solid rgba(16,185,129,.22)}
+.pz-security-grid{display:grid;grid-template-columns:minmax(260px,1fr) minmax(300px,1.1fr);gap:22px;align-items:start}
+.pz-security-copy{padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--bg)}
+.pz-security-copy h4{font-size:16px;margin-bottom:6px}
+.pz-security-copy p{font-size:12px;line-height:1.65;color:var(--text-secondary)}
+.pz-security-note{display:flex;gap:8px;align-items:flex-start;margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(99,102,241,.07);font-size:11px;color:var(--text-secondary)}
+.pz-security-note i{color:var(--primary);margin-top:2px}
+.pz-security-form{padding:4px}
+.pz-password-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.pz-password-msg{min-height:18px;margin-top:10px;font-size:12px;font-weight:700}
+.pz-password-msg.success{color:#059669}.pz-password-msg.error{color:#dc2626}.pz-password-msg.info{color:var(--primary)}
+@media(max-width:760px){.pz-security-grid{grid-template-columns:1fr}}
+</style>
+
+<style id="pz-customer-final-layout">
+/* Final customer table layout: normal readable sizing, tighter overall width, no giant empty columns, horizontal scrolling. */
+#sec-customers .pz-customers-command-panel,
+#sec-customers .pz-admin-kpis{
+  width:100%;
+  max-width:920px;
+}
+#sec-customers .pz-customers-command-panel{margin-right:auto}
+#sec-customers .pz-admin-kpis{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px}
+#sec-customers .pz-admin-kpi{padding:14px 16px;border-radius:14px}
+#sec-customers .pz-admin-kpi .num{font-size:23px;margin-top:3px}
+#sec-customers .pz-admin-kpi .label{font-size:10px;letter-spacing:.4px}
+#sec-customers .panel-header{padding:14px 16px;gap:10px}
+#sec-customers .panel-body{padding:14px 16px}
+#sec-customers .pz-customer-filterbar{gap:7px;padding:8px 10px;margin-bottom:10px}
+#sec-customers .pz-customer-filterbar select{padding:8px 10px;font-size:11px}
+#sec-customers .pz-customer-filterbar .btn{padding:7px 10px;font-size:11px;border-radius:9px}
+#sec-customers .pz-customer-selection-count{font-size:11px}
+
+#sec-customers .pz-compact-customer-table{
+  width:100%;
+  max-width:920px;
+  overflow-x:scroll !important;
+  overflow-y:hidden !important;
+  border-radius:12px !important;
+  border:1px solid var(--border);
+  scrollbar-width:thin;
+  scrollbar-color:var(--primary) var(--bg);
+}
+#sec-customers .pz-compact-customer-table::-webkit-scrollbar{height:12px}
+#sec-customers .pz-compact-customer-table::-webkit-scrollbar-track{background:var(--bg);border-radius:12px}
+#sec-customers .pz-compact-customer-table::-webkit-scrollbar-thumb{background:var(--primary);border-radius:12px;border:2px solid var(--bg)}
+#sec-customers .pz-compact-customer-table table{
+  width:1020px !important;
+  min-width:1020px !important;
+  max-width:none !important;
+  table-layout:fixed !important;
+}
+#sec-customers .pz-compact-customer-table th,
+#sec-customers .pz-compact-customer-table td{
+  white-space:nowrap !important;
+  word-break:normal !important;
+  overflow-wrap:normal !important;
+  padding:11px 12px !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+  vertical-align:middle !important;
+}
+#sec-customers .pz-compact-customer-table th:nth-child(1){width:260px !important}
+#sec-customers .pz-compact-customer-table th:nth-child(2){width:300px !important}
+#sec-customers .pz-compact-customer-table th:nth-child(3){width:170px !important}
+#sec-customers .pz-compact-customer-table th:nth-child(4){width:290px !important}
+#sec-customers .pz-customer-name-cell{gap:9px}
+#sec-customers .pz-compact-customer-photo,
+#sec-customers .pz-compact-customer-fallback{width:38px;height:38px;flex-basis:38px;border-radius:11px}
+#sec-customers .pz-customer-name{font-size:13px}
+#sec-customers .pz-customer-status{margin-top:3px;font-size:9px}
+#sec-customers .pz-customer-actions{gap:6px;flex-wrap:nowrap;white-space:nowrap}
+#sec-customers .pz-more-details-btn{padding:7px 10px;font-size:11px;white-space:nowrap}
+#sec-customers .pz-customer-actions .btn{padding:7px 9px;font-size:11px}
+#sec-customers .pz-customer-email,
+#sec-customers .pz-customer-phone{font-size:12px}
+
+@media(max-width:1050px){
+  #sec-customers .pz-admin-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:680px){
+  #sec-customers .pz-admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #sec-customers .pz-compact-customer-table{max-width:100%}
+  #sec-customers .pz-customers-command-panel{max-width:100%}
+  #sec-customers .pz-admin-kpis{max-width:100%}
+}
+</style>
+
+
+<style id="pz-customer-restore-normal-sizing">
+/* Restore normal customer-page sizing. Keep horizontal field scrolling, but undo the compact spacing/font/card sizing. */
+#sec-customers .pz-customers-command-panel,
+#sec-customers .pz-admin-kpis{width:100%;max-width:920px}
+#sec-customers .pz-admin-kpis{gap:16px;margin-bottom:24px}
+#sec-customers .pz-admin-kpi{padding:20px;border-radius:16px}
+#sec-customers .pz-admin-kpi .num{font-size:28px;margin-top:2px}
+#sec-customers .pz-admin-kpi .label{font-size:12px;letter-spacing:.5px}
+#sec-customers .panel{margin-bottom:20px;border-radius:16px}
+#sec-customers .panel-header{padding:16px 20px;gap:10px}
+#sec-customers .panel-header h3{font-size:16px}
+#sec-customers .panel-body{padding:20px}
+#sec-customers .pz-subtle-line{display:block}
+#sec-customers .pz-customer-filterbar{gap:8px;padding:10px 12px;margin-bottom:10px}
+#sec-customers .pz-customer-filterbar select{padding:10px 12px;font-size:13px}
+#sec-customers .pz-customer-filterbar .btn{padding:8px 16px;font-size:12px;border-radius:10px}
+#sec-customers .pz-customer-selection-count{font-size:12px}
+#sec-customers .pz-compact-customer-table{
+  width:100%;max-width:920px;overflow-x:auto!important;overflow-y:hidden!important;
+  border-radius:14px!important;border:1px solid var(--border);scrollbar-width:thin;
+  scrollbar-color:var(--primary) var(--bg);
+}
+#sec-customers .pz-compact-customer-table::-webkit-scrollbar{height:12px}
+#sec-customers .pz-compact-customer-table::-webkit-scrollbar-track{background:var(--bg);border-radius:12px}
+#sec-customers .pz-compact-customer-table::-webkit-scrollbar-thumb{background:var(--primary);border-radius:12px;border:2px solid var(--bg)}
+#sec-customers .pz-compact-customer-table table{
+  width:1020px!important;min-width:1020px!important;max-width:none!important;table-layout:fixed!important;
+}
+#sec-customers .pz-compact-customer-table th,
+#sec-customers .pz-compact-customer-table td{
+  white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;
+  padding:10px 14px!important;font-size:13px!important;line-height:1.4!important;vertical-align:middle!important;
+}
+#sec-customers .pz-compact-customer-table th:nth-child(1){width:270px!important}
+#sec-customers .pz-compact-customer-table th:nth-child(2){width:300px!important}
+#sec-customers .pz-compact-customer-table th:nth-child(3){width:180px!important}
+#sec-customers .pz-compact-customer-table th:nth-child(4){width:270px!important}
+#sec-customers .pz-customer-name-cell{gap:10px}
+#sec-customers .pz-compact-customer-photo,
+#sec-customers .pz-compact-customer-fallback{width:42px;height:42px;flex-basis:42px;border-radius:13px}
+#sec-customers .pz-customer-name{font-size:14px}
+#sec-customers .pz-customer-status{margin-top:4px;font-size:10px}
+#sec-customers .pz-customer-actions{gap:8px;flex-wrap:nowrap;white-space:nowrap}
+#sec-customers .pz-more-details-btn{padding:8px 12px;font-size:12px}
+#sec-customers .pz-customer-actions .btn{padding:8px 12px;font-size:12px}
+#sec-customers .pz-customer-email,
+#sec-customers .pz-customer-phone{font-size:13px}
+/* Password UI is a Settings-only feature. */
+#sec-dashboard .pz-settings-security-panel,
+#sec-orders .pz-settings-security-panel,
+#sec-customers .pz-settings-security-panel,
+#sec-products .pz-settings-security-panel,
+#sec-notifications .pz-settings-security-panel,
+#sec-arena .pz-settings-security-panel{display:none!important}
+#sec-settings .pz-settings-security-panel{display:block}
+@media(max-width:680px){
+  #sec-customers .pz-admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #sec-customers .pz-compact-customer-table{max-width:100%}
+  #sec-customers .pz-customers-command-panel,#sec-customers .pz-admin-kpis{max-width:100%}
+}
+</style>
+
+
+<style id="pz-customers-full-width-final">
+/* Customer page: use the full available page width and eliminate the large outer/right gap. */
+#sec-customers .pz-customers-command-panel,
+#sec-customers .pz-admin-kpis,
+#sec-customers .pz-compact-customer-table{
+  width:100% !important;
+  max-width:none !important;
+}
+#sec-customers .pz-admin-kpis{
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:16px !important;
+}
+#sec-customers .pz-customers-command-panel{margin-right:0 !important;}
+
+/* Keep horizontal scrolling available on narrower screens while using the full desktop width. */
+#sec-customers .pz-compact-customer-table{
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+}
+#sec-customers .pz-compact-customer-table table{
+  width:100% !important;
+  min-width:980px !important;
+  max-width:none !important;
+  table-layout:fixed !important;
+}
+#sec-customers .pz-compact-customer-table th,
+#sec-customers .pz-compact-customer-table td{
+  box-sizing:border-box !important;
+}
+/* Reduce the oversized blank areas between fields while keeping a clean full-width table. */
+#sec-customers .pz-compact-customer-table th:nth-child(1){width:27% !important;}
+#sec-customers .pz-compact-customer-table th:nth-child(2){width:30% !important;}
+#sec-customers .pz-compact-customer-table th:nth-child(3){width:18% !important;}
+#sec-customers .pz-compact-customer-table th:nth-child(4){width:25% !important;}
+#sec-customers .pz-compact-customer-table th,
+#sec-customers .pz-compact-customer-table td{padding-left:10px !important;padding-right:10px !important;}
+#sec-customers .pz-customer-email,
+#sec-customers .pz-customer-phone{white-space:nowrap !important;}
+#sec-customers .pz-customer-actions{justify-content:flex-start !important;}
+
+@media(max-width:900px){
+  #sec-customers .pz-admin-kpis{grid-template-columns:repeat(3,minmax(0,1fr)) !important;}
+}
+@media(max-width:680px){
+  #sec-customers .pz-admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+  #sec-customers .pz-compact-customer-table table{min-width:980px !important;}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="admin-loader" id="adminLoader">
+<img src="https://www.image2url.com/r2/default/images/1788805311773-68d75ded-4271-402e-93dd-dd9b79cee693.png" alt="PickZone">
+<h2>Admin Panel</h2>
+<p>Loading dashboard...</p>
+<div class="loader-bar"><div></div></div>
+</div>
+
+<div class="login-screen hidden" id="loginScreen">
+<div class="login-card">
+<img src="https://www.image2url.com/r2/default/images/1788805311773-68d75ded-4271-402e-93dd-dd9b79cee693.png" alt="PickZone">
+<h2>Admin Access</h2>
+<p class="subtitle">Authorized personnel only</p>
+<div style="margin:-12px 0 18px;font-size:11px;color:var(--text-secondary);display:flex;align-items:center;justify-content:center;gap:6px">
+<i class="fas fa-shield-alt" style="color:var(--success)"></i> Secure admin login
+</div>
+<div class="input-group"><label>Admin Email</label><input type="email" id="adminEmail" placeholder="admin@pickzonesl" autocomplete="off"></div>
+<div class="input-group"><label>Password</label><input type="password" id="adminPassword" placeholder="Enter password" autocomplete="off"></div>
+<button class="login-btn" onclick="adminLogin()"><i class="fas fa-lock-open" style="margin-right:6px"></i>Access Dashboard</button>
+<div class="login-error" id="loginError"><i class="fas fa-exclamation-circle"></i> <span id="loginErrorMsg">Invalid credentials. Access denied.</span></div>
+<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--text-secondary)">
+<i class="fas fa-shield-alt" style="color:var(--primary);margin-right:4px"></i>
+Secured by PickZone Admin System
+</div>
+</div>
+</div>
+
+<div class="app" id="app">
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-header">
+<img src="https://www.image2url.com/r2/default/images/1788805311773-68d75ded-4271-402e-93dd-dd9b79cee693.png" alt="PickZone">
+<div><div class="brand">PickZone</div><div class="brand-sub">Admin Panel</div></div>
+</div>
+<div class="sidebar-nav">
+<div class="nav-label">Main</div>
+<div class="nav-item active" onclick="showSection('dashboard',this)"><i class="fas fa-chart-line"></i>Dashboard</div>
+<div class="nav-item" onclick="showSection('orders',this)"><i class="fas fa-receipt"></i>Orders<span class="nav-badge" id="ordersBadge">0</span></div>
+<div class="nav-item" onclick="showSection('customers',this)"><i class="fas fa-users"></i>Customers</div>
+<div class="nav-item" onclick="showSection('products',this)"><i class="fas fa-box"></i>Products</div>
+<div class="nav-label">Communication</div>
+<div class="nav-item" onclick="showSection('notifications',this)"><i class="fas fa-bell"></i>Notifications</div>
+<div class="nav-item" onclick="showSection('arena',this)"><i class="fas fa-comments"></i>Message Arena</div>
+<div class="nav-label">Settings</div>
+<div class="nav-item" onclick="showSection('settings',this)"><i class="fas fa-cog"></i>Settings</div>
+</div>
+<div class="sidebar-footer">
+<div class="admin-info">
+<div class="admin-avatar">A</div>
+<div><div class="admin-name" id="adminName">Admin</div><div class="admin-role">Administrator</div></div>
+</div>
+<button class="logout-btn" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i>Logout</button>
+</div>
+</aside>
+
+<div class="main">
+<div class="topbar">
+<div class="topbar-left">
+<button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+<h2 id="sectionTitle">Dashboard</h2>
+</div>
+<div class="topbar-right">
+<span class="live-dot"></span><span class="live-text">Live</span>
+<button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></button>
+</div>
+</div>
+
+<div class="content">
+<div class="page-section active" id="sec-dashboard">
+<div class="stats-grid" id="dashStats"></div>
+<div class="panel">
+<div class="panel-header">
+<h3><i class="fas fa-eye"></i> Website Visitors</h3>
+<div class="panel-actions">
+<button class="btn btn-danger btn-sm" onclick="confirmAction('clearVisitors','Clear all visitor count?','This will reset the visitor counter to zero.')"><i class="fas fa-trash"></i>Reset Count</button>
+</div>
+</div>
+<div class="panel-body">
+<div class="visitor-display">
+<div class="vd-icon"><i class="fas fa-users"></i></div>
+<div><div class="vd-num" id="visitorCount">0</div><div class="vd-label">Total Website Visitors</div></div>
+</div>
+</div>
+</div>
+<div class="panel">
+<div class="panel-header">
+<h3><i class="fas fa-coins"></i> Revenue Overview</h3>
+<div class="panel-actions">
+<button class="btn btn-danger btn-sm" onclick="confirmAction('clearRevenue','Clear all revenue data?','This will permanently delete all revenue records.')"><i class="fas fa-trash-alt"></i>Clear All Revenue</button>
+</div>
+</div>
+<div class="panel-body">
+<div class="stats-grid" id="revenueStats"></div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Date</th><th>Order ID</th><th>Customer</th><th>Items</th><th>Amount</th></tr></thead>
+<tbody id="revenueTable"></tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="panel">
+<div class="panel-header"><h3><i class="fas fa-clock"></i> Recent Orders</h3>
+<button class="btn btn-outline btn-sm" onclick="showSection('orders',document.querySelectorAll('.nav-item')[1])">View All</button>
+</div>
+<div class="panel-body"><div class="table-wrap"><table>
+<thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+<tbody id="recentOrdersTable"></tbody>
+</table></div></div>
+</div>
+</div>
+
+<div class="page-section" id="sec-orders">
+<div class="panel">
+<div class="panel-header">
+<h3><i class="fas fa-receipt"></i> All Orders</h3>
+<div class="panel-actions">
+<div class="search-wrap"><i class="fas fa-search"></i><input class="search-input" placeholder="Search orders..." oninput="filterOrders(this.value)"></div>
+<button class="btn btn-danger btn-sm" onclick="confirmAction('clearOrders','Clear ALL orders?','This will permanently delete all customer orders.')"><i class="fas fa-trash-alt"></i>Clear All Orders</button>
+</div>
+</div>
+<div class="panel-body">
+<div class="table-wrap"><table>
+<thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+<tbody id="allOrdersTable"></tbody>
+</table></div>
+</div>
+</div>
+</div>
+
+<div class="page-section" id="sec-customers">
+<div class="customer-summary-grid" id="customerSummary"></div>
+<div class="panel">
+<div class="panel-header">
+<h3><i class="fas fa-users"></i> Registered Customers</h3>
+<div class="panel-actions">
+<div class="search-wrap"><i class="fas fa-search"></i><input class="search-input" placeholder="Search customers..." oninput="filterCustomers(this.value)"></div>
+<button class="btn btn-success btn-sm" onclick="openBulkEmailModal()"><i class="fas fa-envelope"></i>Email All Customers</button>
+<button class="btn btn-primary btn-sm" onclick="openAddCustomerModal()"><i class="fas fa-user-plus"></i>Add Customer</button>
+</div>
+</div>
+<div class="panel-body">
+<div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px"><i class="fas fa-table-columns" style="color:var(--primary);margin-right:6px"></i>All registered customer fields are shown together on this page.</div>
+<div class="customer-table-wrap" id="customerTableWrap"><table>
+<thead><tr><th>Customer</th><th>WhatsApp</th><th>Contact 2</th><th>City</th><th>District</th><th>Delivery Address</th><th>Items Ordered</th><th>Orders</th><th>Total Buy</th><th>Joined</th><th>Added By</th><th>Actions</th></tr></thead>
+<tbody id="customersTable"></tbody>
+</table></div>
+<div class="customer-horizontal-scroll" id="customerHorizontalScroll" aria-label="Horizontal customer table scroll"><div class="customer-horizontal-scroll-inner" id="customerHorizontalScrollInner"></div></div>
+</div>
+</div>
+</div>
+
+<div class="page-section" id="sec-products">
+<div class="panel">
+<div class="panel-header">
+<h3><i class="fas fa-box"></i> Products</h3>
+<div class="panel-actions">
+<button class="btn btn-primary btn-sm" onclick="openAddProductModal()"><i class="fas fa-plus"></i>Add Product</button>
+</div>
+</div>
+<div class="panel-body">
+<div class="table-wrap"><table>
+<thead><tr><th>Code</th><th>Title</th><th>Price</th><th>Categories</th><th>Description</th><th>Actions</th></tr></thead>
+<tbody id="productsTable"></tbody>
+</table></div>
+</div>
+</div>
+</div>
+
+<div class="page-section" id="sec-notifications">
+<div class="panel">
+<div class="panel-header"><h3><i class="fas fa-bell"></i> Send Notification to Customer</h3></div>
+<div class="panel-body">
+<div class="form-grid">
+<div class="form-group"><label>Customer Email</label><select id="notifCustomer"></select></div>
+<div class="form-group"><label>Order (Optional)</label><select id="notifOrder"><option value="">-- Select Order --</option></select></div>
+<div class="form-group"><label>Status Update</label><select id="notifStatus"><option value="">-- No Status Change --</option><option value="pending">Pending</option><option value="on_the_road">On The Road</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select></div>
+<div class="form-group"><label>Title</label><input type="text" id="notifTitle" placeholder="Notification title"></div>
+<div class="form-group form-full"><label>Message</label><textarea id="notifMessage" placeholder="Notification message"></textarea></div>
+</div>
+<button class="btn btn-primary btn-lg" onclick="sendNotification()" style="margin-top:10px"><i class="fas fa-paper-plane"></i>Send Notification</button>
+</div>
+</div>
+<div class="panel">
+<div class="panel-header"><h3><i class="fas fa-list"></i> Sent Notifications</h3></div>
+<div class="panel-body"><div class="table-wrap"><table>
+<thead><tr><th>Customer</th><th>Title</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+<tbody id="notifTable"></tbody>
+</table></div></div>
+</div>
+</div>
+
+<div class="page-section" id="sec-arena">
+<div class="panel">
+<div class="panel-header"><h3><i class="fas fa-comments"></i> Message Arena</h3>
+<div class="panel-actions"><button class="btn btn-danger btn-sm" onclick="confirmAction('clearArena','Clear all messages?','This will delete all messages from the arena.')"><i class="fas fa-trash"></i>Clear All</button></div>
+</div>
+<div class="panel-body"><div id="arenaMessages"></div></div>
+</div>
+</div>
+
+<div class="page-section" id="sec-settings">
+<div class="panel">
+<div class="panel-header"><h3><i class="fas fa-database"></i> Data Management</h3></div>
+<div class="panel-body">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+<button class="btn btn-danger btn-lg" onclick="confirmAction('clearOrders','Clear ALL orders?','This will permanently delete all orders.')" style="justify-content:center"><i class="fas fa-receipt"></i>Clear All Orders</button>
+<button class="btn btn-danger btn-lg" onclick="confirmAction('clearRevenue','Clear all revenue?','This will permanently delete all revenue data.')" style="justify-content:center"><i class="fas fa-coins"></i>Clear All Revenue</button>
+<button class="btn btn-danger btn-lg" onclick="confirmAction('clearCustomers','Clear ALL customers?','This will delete all registered customers.')" style="justify-content:center"><i class="fas fa-users"></i>Clear All Customers</button>
+<button class="btn btn-danger btn-lg" onclick="confirmAction('clearProducts','Clear ALL products?','This will delete all products.')" style="justify-content:center"><i class="fas fa-box"></i>Clear All Products</button>
+<button class="btn btn-danger btn-lg" onclick="confirmAction('clearNotifs','Clear ALL notifications?','This will delete all notifications.')" style="justify-content:center"><i class="fas fa-bell"></i>Clear Notifications</button>
+<button class="btn btn-danger btn-lg" onclick="confirmAction('clearVisitors','Reset visitor count?','This will reset the visitor counter to 0.')" style="justify-content:center"><i class="fas fa-eye"></i>Reset Visitors</button>
+<button class="btn btn-warning btn-lg" onclick="confirmAction('clearArena','Clear all arena messages?','This will delete all arena messages.')" style="justify-content:center"><i class="fas fa-comments"></i>Clear Arena</button>
+</div>
+</div>
+<div style="margin-top:14px;padding:11px 12px;border:1px solid var(--border);border-radius:12px;background:var(--bg);font-size:11px;color:var(--text-secondary)"><i class="fas fa-link" style="color:var(--primary);margin-right:5px"></i>Admin changes are shared with the PickZone main site when both pages are served from the same origin/domain. Orders, customer accounts and status notifications synchronize through the shared browser data store.</div>
+</div>
+</div>
+
+<div class="panel pz-settings-security-panel">
+  <div class="panel-header">
+    <h3><i class="fas fa-key"></i> Change Admin Login Password</h3>
+    <span class="badge pz-security-badge"><i class="fas fa-lock"></i> Admin Only</span>
+  </div>
+  <div class="panel-body">
+    <div class="pz-settings-password-grid">
+      <div class="pz-settings-password-copy">
+        <div class="pz-settings-password-icon"><i class="fas fa-shield-halved"></i></div>
+        <div>
+          <h4>Secure your PickZone admin login</h4>
+          <p>Change the password used to access this Admin Panel. Your authorized admin email stays the same.</p>
+        </div>
+      </div>
+      <div class="pz-settings-password-form">
+        <div class="pz-settings-password-fields">
+          <div class="form-group"><label>Current Password</label><input type="password" id="pzCurrentAdminPasswordSettings" autocomplete="current-password" placeholder="Enter current password"></div>
+          <div class="form-group"><label>New Password</label><input type="password" id="pzNewAdminPasswordSettings" autocomplete="new-password" placeholder="Enter new password"></div>
+          <div class="form-group"><label>Confirm New Password</label><input type="password" id="pzConfirmAdminPasswordSettings" autocomplete="new-password" placeholder="Re-enter new password"></div>
+        </div>
+        <div class="pz-password-actions">
+          <button class="btn btn-primary" type="button" onclick="changeAdminPasswordFromSettings()"><i class="fas fa-key"></i> Change Password</button>
+          <button class="btn btn-outline" type="button" onclick="clearAdminPasswordSettingsForm()"><i class="fas fa-eraser"></i> Clear</button>
+        </div>
+        <div id="pzPasswordChangeMsgSettings" class="pz-password-msg" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="modal-overlay" id="addCustomerModal">
+<div class="modal-box">
+<span class="modal-close" onclick="closeModal('addCustomerModal')"><i class="fas fa-times"></i></span>
+<h3 id="customerModalTitle"><i class="fas fa-user-plus"></i>Add Customer</h3>
+<div class="form-grid">
+<div class="form-group form-full"><label>Gmail *</label><input type="email" id="acEmail" placeholder="customer@gmail.com"></div>
+<div class="form-group"><label>WhatsApp Number *</label><input type="tel" id="acWhatsapp" placeholder="0771234567"></div>
+<div class="form-group"><label>Password *</label><input type="text" id="acPassword" placeholder="Enter password"></div>
+<div class="form-group"><label>Full Name</label><input type="text" id="acFullName" placeholder="Customer full name"></div>
+<div class="form-group"><label>Contact Number 2</label><input type="tel" id="acContact2" placeholder="Secondary number"></div>
+<div class="form-group"><label>Nearest City</label><input type="text" id="acCity" placeholder="City"></div>
+<div class="form-group"><label>Province</label><select id="acProvince"><option value="">Select Province</option><option>Western Province</option><option>Central Province</option><option>Southern Province</option><option>Northern Province</option><option>Eastern Province</option><option>North Western Province</option><option>North Central Province</option><option>Uva Province</option><option>Sabaragamuwa Province</option></select></div>
+<div class="form-group"><label>District</label><select id="acDistrict"><option value="">Select District</option><option>Colombo</option><option>Gampaha</option><option>Kalutara</option><option>Kandy</option><option>Matale</option><option>Nuwara Eliya</option><option>Galle</option><option>Matara</option><option>Hambantota</option><option>Jaffna</option><option>Kilinochchi</option><option>Mannar</option><option>Mullaitivu</option><option>Vavuniya</option><option>Trincomalee</option><option>Batticaloa</option><option>Ampara</option><option>Kurunegala</option><option>Puttalam</option><option>Anuradhapura</option><option>Polonnaruwa</option><option>Badulla</option><option>Monaragala</option><option>Ratnapura</option><option>Kegalle</option></select></div>
+<div class="form-group form-full"><label>Delivery Address</label><textarea id="acAddress" placeholder="Full delivery address"></textarea></div>
+</div>
+<button class="btn btn-primary btn-lg" id="customerModalBtn" onclick="addCustomer()" style="width:100%;justify-content:center;margin-top:10px"><i class="fas fa-user-plus"></i>Add Customer</button>
+</div>
+</div>
+
+<div class="modal-overlay" id="customerDetailsModal">
+<div class="modal-box" style="max-width:900px">
+<span class="modal-close" onclick="closeModal('customerDetailsModal')"><i class="fas fa-times"></i></span>
+<h3><i class="fas fa-user-circle"></i>Customer Details</h3>
+<div id="customerDetails"></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="bulkEmailModal">
+<div class="modal-box bulk-email-box" style="max-width:760px">
+<span class="modal-close" onclick="closeModal('bulkEmailModal')"><i class="fas fa-times"></i></span>
+<h3><i class="fas fa-envelope"></i>Email All Registered Customers</h3>
+<div class="bulk-email-count" id="bulkEmailCount">0 customer emails ready</div>
+<div class="form-group form-full" style="margin-top:16px"><label>Recipients (BCC)</label><textarea id="bulkEmailRecipients" readonly placeholder="Customer email addresses will appear here..."></textarea></div>
+<div style="display:grid;grid-template-columns:1fr;gap:0">
+  <div class="form-group"><label>Subject</label><input type="text" id="bulkEmailSubject" placeholder="PickZone update"></div>
+  <div class="form-group"><label>Message</label><textarea id="bulkEmailBody" rows="7" placeholder="Write your message to all customers..."></textarea></div>
+</div>
+<div class="panel-actions" style="justify-content:flex-end;margin-top:10px">
+  <button type="button" class="btn btn-outline" onclick="copyBulkEmails()"><i class="fas fa-copy"></i>Copy All Emails</button>
+  <button type="button" class="btn btn-success btn-lg" onclick="openBulkEmailClient()"><i class="fas fa-paper-plane"></i>Open Email App</button>
+</div>
+<div class="email-note"><i class="fas fa-circle-info" style="color:var(--primary);margin-right:5px"></i>This admin panel is a browser-only HTML file, so it cannot send mail directly. The button opens your default email app with all registered customer addresses in BCC, ready for one message.</div>
+</div>
+</div>
+
+<div class="modal-overlay" id="addProductModal">
+<div class="modal-box">
+<span class="modal-close" onclick="closeModal('addProductModal')"><i class="fas fa-times"></i></span>
+<h3 id="productModalTitle"><i class="fas fa-plus-circle"></i>Add Product</h3>
+<div class="form-grid">
+<div class="form-group"><label>Product Code *</label><input type="text" id="apCode" placeholder="P00021"></div>
+<div class="form-group"><label>Price (LKR) *</label><input type="number" id="apPrice" placeholder="1500"></div><div class="form-group"><label>Stock *</label><input type="number" id="apStock" placeholder="10" min="0"></div>
+<div class="form-group form-full"><label>Title *</label><input type="text" id="apTitle" placeholder="Product name"></div>
+<div class="form-group form-full"><label>Description</label><textarea id="apDescription" placeholder="Product description..." rows="4"></textarea></div>
+<div class="form-group form-full"><label>Categories (comma separated)</label><input type="text" id="apCategories" placeholder="Clothes, Gifts"></div>
+<div class="form-group form-full"><label>Image URLs (comma separated)</label><textarea id="apImages" placeholder="https://..." rows="3"></textarea></div>
+</div>
+<button class="btn btn-primary btn-lg" id="productModalBtn" onclick="addProduct()" style="width:100%;justify-content:center;margin-top:10px"><i class="fas fa-plus"></i>Add Product</button>
+</div>
+</div>
+
+<div class="modal-overlay" id="viewProductModal">
+<div class="modal-box">
+<span class="modal-close" onclick="closeModal('viewProductModal')"><i class="fas fa-times"></i></span>
+<h3><i class="fas fa-info-circle"></i>Product Details</h3>
+<div id="productDetails"></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="statusModal">
+<div class="modal-box">
+<span class="modal-close" onclick="closeModal('statusModal')"><i class="fas fa-times"></i></span>
+<h3><i class="fas fa-truck"></i>Update Order Status</h3>
+<p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">Order: <strong id="statusOrderId"></strong></p>
+<div class="form-group"><label>New Status</label><select id="statusSelect"><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select></div>
+<div class="form-group"><label>Custom Message (Optional)</label><textarea id="statusMsg" placeholder="Add a message for the customer..."></textarea></div>
+<input type="hidden" id="statusOrderIdx">
+<button class="btn btn-primary btn-lg" onclick="updateOrderStatus()" style="width:100%;justify-content:center;margin-top:10px"><i class="fas fa-check"></i>Update Status</button>
+
+</div>
+</div>
+</div>
+
+<div class="confirm-overlay" id="confirmDialog">
+<div class="confirm-box">
+<div class="confirm-icon danger" id="confirmIcon"><i class="fas fa-exclamation-triangle"></i></div>
+<h3 id="confirmTitle">Are you sure?</h3>
+<p id="confirmMsg">This action cannot be undone.</p>
+<div class="confirm-actions">
+<button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+<button class="btn btn-danger" id="confirmBtn" onclick="executeConfirm()">Confirm</button>
+</div>
+</div>
+</div>
+
+<script>
+// ===== STRICT ADMIN CREDENTIALS =====
+const ADMIN_EMAIL = ''; const ADMIN_DEFAULT_PASSWORD = ''; const ADMIN_PASSWORD_KEY = '';
+function getAdminPassword(){ return ''; }
+
+let adminUser = null;
+let confirmCallback = null;
+let editingCustomerIdx = -1;
+let editingProductIdx = -1;
+let failedAttempts = 0;
+const MAX_ATTEMPTS = 5;
+
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('adminLoader').classList.add('hidden');
+        setTimeout(() => {
+            document.getElementById('adminLoader').style.display = 'none';
+            checkAdminAuth();
+        }, 250);
+    }, 350);
+});
+
+function checkAdminAuth() {
+    const authenticated = sessionStorage.getItem('pickzone_admin_session') === 'authenticated';
+    const saved = sessionStorage.getItem('pickzone_admin');
+    if (authenticated && saved) {
+        try {
+            const a = JSON.parse(saved);
+            if (a.email === ADMIN_EMAIL) {
+                adminUser = a;
+                showApp();
+                return;
+            }
+        } catch (e) {}
+    }
+    sessionStorage.removeItem('pickzone_admin_session');
+    sessionStorage.removeItem('pickzone_admin');
+    document.getElementById('loginScreen').classList.remove('hidden');
+}
+
+function adminLogin() {
+    const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+    const password = document.getElementById('adminPassword').value;
+    const errEl = document.getElementById('loginError');
+    const errMsg = document.getElementById('loginErrorMsg');
+
+    // Rate limiting
+    if (failedAttempts >= MAX_ATTEMPTS) {
+        errEl.classList.add('show');
+        errMsg.textContent = 'Too many failed attempts. Please try again later.';
+        setTimeout(() => { failedAttempts = 0; errEl.classList.remove('show'); }, 30000);
+        return;
+    }
+
+    // STRICT VALIDATION: Email AND Password must BOTH match exactly
+    const expectedPassword = getAdminPassword();
+    if (email === ADMIN_EMAIL && password === expectedPassword) {
+        adminUser = { email: ADMIN_EMAIL, fullName: 'Administrator' };
+        sessionStorage.setItem('pickzone_admin', JSON.stringify(adminUser));
+        sessionStorage.setItem('pickzone_admin_session', 'authenticated');
+        errEl.classList.remove('show');
+        failedAttempts = 0;
+        document.getElementById('loginScreen').classList.add('hidden');
+        showApp();
+        return;
+    }
+
+    // Failed attempt
+    failedAttempts++;
+    errEl.classList.add('show');
+
+    if (email !== ADMIN_EMAIL && password !== expectedPassword) {
+        errMsg.textContent = 'Invalid email and password. Access denied.';
+    } else if (email !== ADMIN_EMAIL) {
+        errMsg.textContent = 'Email not authorized. Only admin can access this panel.';
+    } else {
+        errMsg.textContent = 'Incorrect password. Access denied.';
+    }
+
+    document.getElementById('adminPassword').value = '';
+
+    // Log failed attempt (for security tracking)
+    console.warn(`[PickZone Admin] Failed login attempt #${failedAttempts} from email: ${email}`);
+}
+
+// Allow Enter key to submit
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !document.getElementById('loginScreen').classList.contains('hidden')) {
+        adminLogin();
+    }
+});
+
+function adminLogout() {
+    sessionStorage.removeItem('pickzone_admin');
+    sessionStorage.removeItem('pickzone_admin_session');
+    adminUser = null;
+    failedAttempts = 0;
+    document.getElementById('app').classList.remove('active');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('adminEmail').value = '';
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('loginError').classList.remove('show');
+}
+
+function showApp() {
+    document.getElementById('app').classList.add('active');
+    document.getElementById('adminName').textContent = 'Administrator';
+    renderDashboard();
+    renderOrders();
+    renderCustomers();
+    renderProducts();
+    renderNotifications();
+    renderArena();
+}
+
+function showSection(id, el) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (el) el.classList.add('active');
+    const titles = { dashboard: 'Dashboard', orders: 'Orders', customers: 'Customers', products: 'Products', notifications: 'Notifications', arena: 'Message Arena', settings: 'Settings', account: 'Account' };
+    document.getElementById('sectionTitle').textContent = titles[id] || 'Dashboard';
+    if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+    if (id === 'dashboard') renderDashboard();
+    if (id === 'orders') renderOrders();
+    if (id === 'customers') renderCustomers();
+    if (id === 'products') renderProducts();
+    if (id === 'notifications') renderNotifDropdowns();
+    if (id === 'arena') renderArena();
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+function toggleTheme() {
+    let t = document.body.getAttribute('data-theme'), n = t === 'light' ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', n);
+    document.getElementById('themeIcon').className = n === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    localStorage.setItem('pickzone_theme', n);
+}
+
+function getOrders() { return JSON.parse(localStorage.getItem('pickzone_orders') || '[]'); }
+function getUsers() { return JSON.parse(localStorage.getItem('pickzone_users') || '[]'); }
+function getProducts() { return JSON.parse(localStorage.getItem('pickzone_items') || '[]'); }
+function getNotifs() { return JSON.parse(localStorage.getItem('pickzone_notifications') || '[]'); }
+function getMessages() { return JSON.parse(localStorage.getItem('pickzone_messages') || '[]'); }
+function getVisitors() { return parseInt(localStorage.getItem('pickzone_visitor_count') || '0'); }
+
+function toast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+    t.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i>${msg}`;
+    document.body.appendChild(t);
+    setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function confirmAction(action, title, msg) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMsg').textContent = msg;
+    document.getElementById('confirmDialog').classList.add('active');
+    confirmCallback = action;
+}
+function closeConfirm() { document.getElementById('confirmDialog').classList.remove('active'); confirmCallback = null; }
+function executeConfirm() {
+    if (!confirmCallback) return;
+    const action = confirmCallback;
+    closeConfirm();
+    switch (action) {
+        case 'clearOrders': localStorage.setItem('pickzone_orders', '[]'); toast('All orders cleared!'); renderDashboard(); renderOrders(); break;
+        case 'clearRevenue': localStorage.setItem('pickzone_orders', '[]'); toast('All revenue data cleared!'); renderDashboard(); break;
+        case 'clearCustomers': localStorage.setItem('pickzone_users', '[]'); toast('All customers cleared!'); renderCustomers(); renderDashboard(); break;
+        case 'clearProducts': localStorage.setItem('pickzone_items', '[]'); toast('All products cleared!'); renderProducts(); break;
+        case 'clearNotifs': localStorage.setItem('pickzone_notifications', '[]'); toast('All notifications cleared!'); renderNotifications(); break;
+        case 'clearVisitors': localStorage.setItem('pickzone_visitor_count', '0'); toast('Visitor count reset!'); renderDashboard(); break;
+        case 'clearArena': localStorage.setItem('pickzone_messages', '[]'); toast('All arena messages cleared!'); renderArena(); break;
+    }
+}
+
+function renderDashboard() {
+    const orders = getOrders(); const users = getUsers(); const products = getProducts(); const visitors = getVisitors();
+    const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+    const deliveredRevenue = orders.filter(o => o.status === 'delivered').reduce((s, o) => s + (o.total || 0), 0);
+    const pendingOrders = orders.filter(o => o.status === 'pending').length;
+    const activeOrders = orders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length;
+
+    document.getElementById('dashStats').innerHTML = `
+<div class="stat-card purple"><div class="sc-icon"><i class="fas fa-receipt"></i></div><div class="sc-value">${orders.length}</div><div class="sc-label">Total Orders</div></div>
+<div class="stat-card green"><div class="sc-icon"><i class="fas fa-coins"></i></div><div class="sc-value">LKR ${totalRevenue.toLocaleString()}</div><div class="sc-label">Total Revenue</div></div>
+<div class="stat-card pink"><div class="sc-icon"><i class="fas fa-users"></i></div><div class="sc-value">${users.length}</div><div class="sc-label">Customers</div></div>
+<div class="stat-card blue"><div class="sc-icon"><i class="fas fa-box"></i></div><div class="sc-value">${products.length}</div><div class="sc-label">Products</div></div>`;
+
+    document.getElementById('visitorCount').textContent = visitors.toLocaleString();
+
+    document.getElementById('revenueStats').innerHTML = `
+<div class="stat-card green"><div class="sc-icon"><i class="fas fa-check-circle"></i></div><div class="sc-value">LKR ${deliveredRevenue.toLocaleString()}</div><div class="sc-label">Delivered Revenue</div></div>
+<div class="stat-card pink"><div class="sc-icon"><i class="fas fa-clock"></i></div><div class="sc-value">${pendingOrders}</div><div class="sc-label">Pending Orders</div></div>
+<div class="stat-card blue"><div class="sc-icon"><i class="fas fa-shipping-fast"></i></div><div class="sc-value">${activeOrders}</div><div class="sc-label">Active Orders</div></div>`;
+
+    const revOrders = [...orders].reverse().slice(0, 10);
+    document.getElementById('revenueTable').innerHTML = revOrders.length ? revOrders.map(o => `<tr><td>${new Date(o.date).toLocaleDateString()}</td><td style="font-weight:700;color:var(--primary)">${o.id}</td><td>${o.customer?.name || o.email}</td><td>${o.items?.length || 0} items</td><td style="font-weight:700;color:var(--success)">LKR ${(o.total || 0).toLocaleString()}</td></tr>`).join('') : '<tr><td colspan="5" class="empty"><i class="fas fa-coins"></i><p>No revenue data yet</p></td></tr>';
+
+    const recent = [...orders].reverse().slice(0, 5);
+    document.getElementById('recentOrdersTable').innerHTML = recent.length ? recent.map(o => {
+        const bc = { pending: 'badge-pending', on_the_road: 'badge-road', delivered: 'badge-delivered', cancelled: 'badge-cancelled' };
+        const bl = { pending: 'Pending', on_the_road: 'On Road', delivered: 'Delivered', cancelled: 'Cancelled' };
+        return `<tr><td style="font-weight:700;color:var(--primary)">${o.id}</td><td>${o.customer?.name || o.email}</td><td>LKR ${(o.total || 0).toLocaleString()}</td><td><span class="badge ${bc[o.status] || 'badge-pending'}">${bl[o.status] || 'Pending'}</span></td><td>${new Date(o.date).toLocaleDateString()}</td></tr>`;
+    }).join('') : '<tr><td colspan="5" class="empty"><i class="fas fa-receipt"></i><p>No orders yet</p></td></tr>';
+
+    document.getElementById('ordersBadge').textContent = activeOrders;
+}
+
+let ordersSearchTerm = '';
+function filterOrders(v) { ordersSearchTerm = v.toLowerCase(); renderOrders(); }
+function renderOrders() {
+    const orders = getOrders();
+    let filtered = orders;
+    if (ordersSearchTerm) { filtered = orders.filter(o => (o.id || '').toLowerCase().includes(ordersSearchTerm) || (o.customer?.name || '').toLowerCase().includes(ordersSearchTerm) || (o.email || '').toLowerCase().includes(ordersSearchTerm)); }
+    const sorted = [...filtered].reverse();
+    document.getElementById('allOrdersTable').innerHTML = sorted.length ? sorted.map((o, ri) => {
+        const idx = orders.length - 1 - ri;
+        const bc = { pending: 'badge-pending', on_the_road: 'badge-road', delivered: 'badge-delivered', cancelled: 'badge-cancelled' };
+        const bl = { pending: 'Pending', on_the_road: 'On Road', delivered: 'Delivered', cancelled: 'Cancelled' };
+        return `<tr>
+<td style="font-weight:700;color:var(--primary)">${o.id}</td>
+<td><div style="font-weight:600">${o.customer?.name || 'N/A'}</div><div style="font-size:11px;color:var(--text-secondary)">${o.email || ''}</div></td>
+<td>${(o.items?.map(i => i.title).join(', ') || 'N/A').substring(0, 30)}${(o.items?.map(i => i.title).join(', ') || '').length > 30 ? '...' : ''}</td>
+<td style="font-weight:700">LKR ${(o.total || 0).toLocaleString()}</td>
+<td><span class="badge ${bc[o.status] || 'badge-pending'}">${bl[o.status] || 'Pending'}</span></td>
+<td>${new Date(o.date).toLocaleDateString()}</td>
+<td><div style="display:flex;gap:4px">
+<button class="btn btn-primary btn-sm" onclick="openStatusModal(${idx})" title="Update Status"><i class="fas fa-edit"></i></button>
+<button class="btn btn-danger btn-sm" onclick="deleteOrder(${idx})" title="Delete"><i class="fas fa-trash"></i></button>
+</div></td></tr>`;
+    }).join('') : '<tr><td colspan="7" class="empty"><i class="fas fa-receipt"></i><p>No orders found</p></td></tr>';
+    document.getElementById('ordersBadge').textContent = orders.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').length;
+}
+
+function deleteOrder(idx) { const orders = getOrders(); orders.splice(idx, 1); localStorage.setItem('pickzone_orders', JSON.stringify(orders)); toast('Order deleted!'); renderOrders(); renderDashboard(); }
+
+function openStatusModal(idx) {
+    const orders = getOrders(); const o = orders[idx];
+    document.getElementById('statusOrderId').textContent = o.id;
+    document.getElementById('statusSelect').value = o.status || 'pending';
+    document.getElementById('statusMsg').value = '';
+    document.getElementById('statusOrderIdx').value = idx;
+    openModal('statusModal');
+}
+
+function updateOrderStatus() {
+    const idx = parseInt(document.getElementById('statusOrderIdx').value);
+    const newStatus = document.getElementById('statusSelect').value;
+    const customMsg = document.getElementById('statusMsg').value.trim();
+    const orders = getOrders(); if (!orders[idx]) return;
+    if (!orders[idx].statusHistory) orders[idx].statusHistory = [];
+    orders[idx].statusHistory.push({ from: orders[idx].status, to: newStatus, customMsg: customMsg || '', changedAt: new Date().toISOString(), changedBy: adminUser.email });
+    orders[idx].status = newStatus;
+    localStorage.setItem('pickzone_orders', JSON.stringify(orders));
+    if (customMsg || newStatus) {
+        const notifs = getNotifs();
+        const statusLabels = { pending: 'Pending', on_the_road: 'On The Road', delivered: 'Delivered', cancelled: 'Cancelled' };
+        notifs.push({ email: orders[idx].email, orderId: orders[idx].id, status: newStatus, title: 'Order ' + statusLabels[newStatus], message: customMsg || ('Your order status has been updated to ' + statusLabels[newStatus] + '.'), read: false, createdAt: new Date().toISOString() });
+        localStorage.setItem('pickzone_notifications', JSON.stringify(notifs));
+    }
+    closeModal('statusModal'); toast('Order status updated! Notification sent.');
+    renderOrders(); renderDashboard(); renderNotifications();
+}
+
+let custSearchTerm = '';
+function customerEmailMatch(a,b){ return String(a||'').trim().toLowerCase() === String(b||'').trim().toLowerCase(); }
+function escapeHtml(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function formatDateSafe(v){ const d=new Date(v); return Number.isNaN(d.getTime()) ? '-' : d.toLocaleDateString(); }
+function getCustomerOrders(email){ return getOrders().filter(o=>customerEmailMatch(o.email,email)); }
+function getCustomerTotalBuy(email){ return getCustomerOrders(email).reduce((sum,o)=>sum + Number(o.total||0),0); }
+function getCustomerItems(email){
+    const map=new Map();
+    getCustomerOrders(email).forEach(o=>{
+        (o.items||[]).forEach(item=>{
+            const key=String(item.code||item.title||'Item');
+            const cur=map.get(key)||{code:item.code||'',title:item.title||'Item',qty:0,total:0};
+            cur.qty += Number(item.qty||item.quantity||1);
+            cur.total += Number(item.price||0)*Number(item.qty||item.quantity||1);
+            map.set(key,cur);
+        });
+    });
+    return Array.from(map.values()).sort((a,b)=>String(a.code).localeCompare(String(b.code),'en',{numeric:true,sensitivity:'base'}));
+}
+function renderCustomerSummary(users,orders){
+    const totalBuy=orders.reduce((s,o)=>s+Number(o.total||0),0);
+    const totalItems=orders.reduce((s,o)=>s+(o.items||[]).reduce((n,i)=>n+Number(i.qty||i.quantity||1),0),0);
+    const el=document.getElementById('customerSummary'); if(!el)return;
+    el.innerHTML=`
+      <div class="customer-summary-card"><div class="csc-label">Total Customers</div><div class="csc-value">${users.length.toLocaleString()}</div></div>
+      <div class="customer-summary-card"><div class="csc-label">Items Ordered</div><div class="csc-value">${totalItems.toLocaleString()}</div></div>
+      <div class="customer-summary-card"><div class="csc-label">Total Buy Prices</div><div class="csc-value money">LKR ${totalBuy.toLocaleString()}</div></div>`;
+}
+function filterCustomers(v) { custSearchTerm = String(v||'').toLowerCase().trim(); renderCustomers(); }
+function renderCustomers() {
+    const users = getUsers(); const orders = getOrders();
+    let filtered = users;
+    if (custSearchTerm) {
+        filtered = users.filter(u => {
+            const customerOrders=getCustomerOrders(u.email);
+            const itemText=customerOrders.flatMap(o=>(o.items||[]).flatMap(i=>[i.title,i.code])).join(' ').toLowerCase();
+            return [u.email,u.fullName,u.whatsapp,u.contactNumber2,u.nearestCity,u.district,u.deliveryAddress,u.addedBy,itemText].some(v=>String(v||'').toLowerCase().includes(custSearchTerm));
+        });
+    }
+    renderCustomerSummary(users,orders);
+    const table=document.getElementById('customersTable');
+    if(!table) return;
+    table.innerHTML = filtered.length ? filtered.map((u) => {
+        const originalIdx=users.indexOf(u);
+        const userOrders=getCustomerOrders(u.email);
+        const totalBuy=userOrders.reduce((sum,o)=>sum+Number(o.total||0),0);
+        const items=getCustomerItems(u.email);
+        const itemHtml=items.length ? items.slice(0,5).map(it=>`<div class="item-line"><strong>${escapeHtml(it.code||'-')}</strong> · ${escapeHtml(it.title)} × ${it.qty}</div>`).join('') + (items.length>5?`<div class="customer-cell-muted">+${items.length-5} more products</div>`:'') : '<span class="customer-cell-muted">No items ordered</span>';
+        const initials=escapeHtml((u.fullName||u.email||'C').trim().slice(0,1).toUpperCase());
+        const photo=u.profilePic ? `<img class="customer-row-photo" src="${escapeHtml(u.profilePic)}" alt="Customer" loading="lazy">` : `<span class="customer-avatar-fallback">${initials}</span>`;
+        return `<tr>
+<td data-label="Customer"><div class="customer-main">${photo}<div><div class="cm-name">${escapeHtml(u.fullName||'Unnamed Customer')}</div><div class="cm-email">${escapeHtml(u.email)}</div></div></div></td>
+<td data-label="WhatsApp">${escapeHtml(u.whatsapp||'-')}</td>
+<td data-label="Contact 2">${escapeHtml(u.contactNumber2||'-')}</td>
+<td data-label="City">${escapeHtml(u.nearestCity||'-')}</td>
+<td data-label="District">${escapeHtml(u.district||'-')}</td>
+<td data-label="Delivery Address"><div class="customer-address">${escapeHtml(u.deliveryAddress||'-')}</div></td>
+<td data-label="Items Ordered"><div class="customer-items">${itemHtml}</div></td>
+<td data-label="Orders"><span class="customer-count">${userOrders.length}</span></td>
+<td data-label="Total Buy"><span class="customer-total">LKR ${totalBuy.toLocaleString()}</span></td>
+<td data-label="Joined">${formatDateSafe(u.createdAt)}</td>
+<td data-label="Added By">${escapeHtml(u.addedBy||'signup')}</td>
+<td data-label="Actions"><div style="display:flex;gap:4px;flex-wrap:wrap">
+<button class="btn btn-primary btn-sm customer-view-btn" onclick="viewCustomer(${originalIdx})" title="View all customer information"><i class="fas fa-eye"></i></button>
+<button class="btn btn-outline btn-sm" onclick="editCustomer(${originalIdx})" title="Edit"><i class="fas fa-edit"></i></button>
+<button class="btn btn-danger btn-sm" onclick="deleteCustomer(${originalIdx})" title="Delete"><i class="fas fa-trash"></i></button>
+</div></td></tr>`;
+    }).join('') : '<tr><td colspan="12" class="empty"><i class="fas fa-users"></i><p>No customers found</p></td></tr>';
+    requestAnimationFrame(syncCustomerHorizontalBar);
+}
+
+let customerScrollSyncBound = false;
+function syncCustomerHorizontalBar(){
+    const wrap=document.getElementById('customerTableWrap');
+    const bar=document.getElementById('customerHorizontalScroll');
+    const inner=document.getElementById('customerHorizontalScrollInner');
+    if(!wrap || !bar || !inner) return;
+    const width=Math.max(wrap.scrollWidth, wrap.clientWidth);
+    inner.style.width=width+'px';
+    if(!customerScrollSyncBound){
+        wrap.addEventListener('scroll',()=>{ if(Math.abs(bar.scrollLeft-wrap.scrollLeft)>1) bar.scrollLeft=wrap.scrollLeft; },{passive:true});
+        bar.addEventListener('scroll',()=>{ if(Math.abs(wrap.scrollLeft-bar.scrollLeft)>1) wrap.scrollLeft=bar.scrollLeft; },{passive:true});
+        window.addEventListener('resize',syncCustomerHorizontalBar);
+        customerScrollSyncBound=true;
+    }
+    if(bar.scrollLeft!==wrap.scrollLeft) bar.scrollLeft=wrap.scrollLeft;
+}
+function customerScrollBy(amount){
+    const wrap=document.getElementById('customerTableWrap');
+    const bar=document.getElementById('customerHorizontalScroll');
+    if(!wrap || !bar) return;
+    const next=Math.max(0,Math.min(wrap.scrollWidth-wrap.clientWidth,wrap.scrollLeft+Number(amount||0)));
+    wrap.scrollTo({left:next,behavior:'smooth'});
+    bar.scrollTo({left:next,behavior:'smooth'});
+}
+function getBulkCustomerEmails(){
+    const users=getUsers();
+    return [...new Set(users.map(u=>String(u.email||'').trim().toLowerCase()).filter(e=>e && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)))];
+}
+function openBulkEmailModal(){
+    const emails=getBulkCustomerEmails();
+    document.getElementById('bulkEmailRecipients').value=emails.join(', ');
+    document.getElementById('bulkEmailCount').textContent=emails.length.toLocaleString()+' customer email'+(emails.length===1?'':'s')+' ready';
+    if(!document.getElementById('bulkEmailSubject').value) document.getElementById('bulkEmailSubject').value='PickZone Update';
+    openModal('bulkEmailModal');
+}
+function copyBulkEmails(){
+    const text=document.getElementById('bulkEmailRecipients').value;
+    if(!text){toast('No customer emails found.','error');return;}
+    if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(text).then(()=>toast('All customer emails copied!')).catch(()=>fallbackCopyBulkEmails(text));
+    }else{ fallbackCopyBulkEmails(text); }
+}
+function fallbackCopyBulkEmails(text){
+    const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select();
+    try{document.execCommand('copy');toast('All customer emails copied!');}catch(e){toast('Copy failed. Select and copy the email list manually.','error');}
+    ta.remove();
+}
+function openBulkEmailClient(){
+    const emails=getBulkCustomerEmails();
+    if(!emails.length){toast('No customer email addresses found.','error');return;}
+    const subject=(document.getElementById('bulkEmailSubject').value||'PickZone Update').trim();
+    const body=document.getElementById('bulkEmailBody').value||'';
+    const bcc=emails.join(',');
+    const mailto='mailto:?bcc='+encodeURIComponent(bcc)+'&subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+    if(mailto.length>8000){
+        copyBulkEmails();
+        toast('The email list is too large for one email-app URL. The full list was copied so you can paste it into BCC.','info');
+        return;
+    }
+    window.location.href=mailto;
+}
+
+function viewCustomer(idx){
+    const users=getUsers(); const u=users[idx]; if(!u)return;
+    const orders=getCustomerOrders(u.email); const items=getCustomerItems(u.email); const totalBuy=orders.reduce((s,o)=>s+Number(o.total||0),0);
+    const avatar=u.profilePic ? `<img src="${escapeHtml(u.profilePic)}" alt="Customer" style="width:72px;height:72px;border-radius:18px;object-fit:cover;border:1px solid var(--border);box-shadow:0 8px 25px rgba(0,0,0,.12)">` : `<div class="customer-avatar-fallback" style="width:72px;height:72px;border-radius:18px;font-size:24px">${escapeHtml((u.fullName||u.email||'C').trim().slice(0,1).toUpperCase())}</div>`;
+    const itemsOrdered=items.length ? items.map(it=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><div><strong>${escapeHtml(it.code||'-')}</strong> · ${escapeHtml(it.title)}</div><div style="font-weight:700">× ${it.qty}</div></div>`).join('') : '<div class="customer-empty-orders">No ordered items yet.</div>';
+    const ordersHtml=orders.length ? [...orders].reverse().map(o=>{ const statusLabels={pending:'Pending',on_the_road:'On The Road',delivered:'Delivered',cancelled:'Cancelled'}; const statusClass={pending:'badge-pending',on_the_road:'badge-road',delivered:'badge-delivered',cancelled:'badge-cancelled'}[o.status]||'badge-pending'; const orderItems=(o.items||[]).map(i=>`${escapeHtml(i.title||'Item')} × ${Number(i.qty||i.quantity||1)}`).join(', ')||'No item details'; return `<div class="customer-order-card"><div class="customer-order-head"><div><div class="customer-order-id">${escapeHtml(o.id||'Order')}</div><div class="customer-order-meta">${formatDateSafe(o.date)}</div></div><span class="badge ${statusClass}">${statusLabels[o.status]||'Pending'}</span></div><div class="customer-order-items">${orderItems}</div><div class="customer-order-total">LKR ${Number(o.total||0).toLocaleString()}</div></div>`; }).join('') : '<div class="customer-empty-orders">This customer has not ordered any items yet.</div>';
+    document.getElementById('customerDetails').innerHTML=`
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">${avatar}<div><div style="font-size:20px;font-weight:800">${escapeHtml(u.fullName||'Unnamed Customer')}</div><div style="font-size:12px;color:var(--text-secondary)">${escapeHtml(u.email)}</div></div></div>
+      <div class="customer-detail-grid">
+        <div class="customer-detail-box"><div class="customer-detail-label">WhatsApp</div><div class="customer-detail-value">${escapeHtml(u.whatsapp||'-')}</div></div>
+        <div class="customer-detail-box"><div class="customer-detail-label">Contact Number 2</div><div class="customer-detail-value">${escapeHtml(u.contactNumber2||'-')}</div></div>
+        <div class="customer-detail-box"><div class="customer-detail-label">Nearest City</div><div class="customer-detail-value">${escapeHtml(u.nearestCity||'-')}</div></div>
+        <div class="customer-detail-box"><div class="customer-detail-label">District</div><div class="customer-detail-value">${escapeHtml(u.district||'-')}</div></div>
+        <div class="customer-detail-box full"><div class="customer-detail-label">Delivery Address</div><div class="customer-detail-value">${escapeHtml(u.deliveryAddress||'-')}</div></div>
+        <div class="customer-detail-box"><div class="customer-detail-label">Orders</div><div class="customer-detail-value" style="font-weight:800;color:var(--primary)">${orders.length}</div></div>
+        <div class="customer-detail-box"><div class="customer-detail-label">Total Buy Prices</div><div class="customer-detail-value" style="font-weight:800;color:var(--secondary)">LKR ${totalBuy.toLocaleString()}</div></div>
+        <div class="customer-detail-box"><div class="customer-detail-label">Joined</div><div class="customer-detail-value">${formatDateSafe(u.createdAt)}</div></div>
+        <div class="customer-detail-box"><div class="customer-detail-label">Added By</div><div class="customer-detail-value">${escapeHtml(u.addedBy||'signup')}</div></div>
+        <div class="customer-detail-box full"><div class="customer-detail-label">Items Ordered</div><div class="customer-detail-value">${itemsOrdered}</div></div>
+        <div class="customer-detail-box full"><div class="customer-detail-label">Order History</div><div class="customer-detail-value">${ordersHtml}</div></div>
+      </div>`;
+    openModal('customerDetailsModal');
+}
+
+function openAddCustomerModal() {
+    editingCustomerIdx = -1;
+    ['acEmail', 'acWhatsapp', 'acPassword', 'acFullName', 'acContact2', 'acCity', 'acAddress'].forEach(id => document.getElementById(id).value = '');
+    if(document.getElementById('acProvince')) document.getElementById('acProvince').value = '';
+    document.getElementById('acDistrict').value = '';
+    document.getElementById('customerModalTitle').innerHTML = '<i class="fas fa-user-plus"></i>Add Customer';
+    document.getElementById('customerModalBtn').innerHTML = '<i class="fas fa-user-plus"></i>Add Customer';
+    document.getElementById('customerModalBtn').onclick = () => addCustomer();
+    openModal('addCustomerModal');
+}
+
+function addCustomer() {
+    const email = document.getElementById('acEmail').value.trim().toLowerCase();
+    const whatsapp = document.getElementById('acWhatsapp').value.trim();
+    const password = document.getElementById('acPassword').value.trim();
+    const fullName = document.getElementById('acFullName').value.trim();
+    const contactNumber2 = document.getElementById('acContact2').value.trim();
+    const nearestCity = document.getElementById('acCity').value.trim();
+    const province = document.getElementById('acProvince')?.value || '';
+    const district = document.getElementById('acDistrict').value;
+    const deliveryAddress = document.getElementById('acAddress').value.trim();
+
+    if (!email || !email.endsWith('@gmail.com')) { toast('Valid Gmail required!', 'error'); return; }
+    if (!whatsapp || whatsapp.length < 9) { toast('Valid WhatsApp number required!', 'error'); return; }
+    if (!password) { toast('Password is required!', 'error'); return; }
+
+    const users = getUsers();
+    if (users.find(u => u.email.toLowerCase() === email)) { toast('Email already registered!', 'error'); return; }
+
+    users.push({ email, whatsapp, password, fullName: fullName || '', contactNumber2: contactNumber2 || '', nearestCity: nearestCity || '', district: district || '', deliveryAddress: deliveryAddress || '', province: province || '', profilePic: '', orderCount: 0, createdAt: new Date().toISOString(), addedBy: 'admin' });
+    localStorage.setItem('pickzone_users', JSON.stringify(users));
+    closeModal('addCustomerModal'); toast('Customer added successfully!');
+    renderCustomers(); renderDashboard();
+}
+
+function editCustomer(idx) {
+    editingCustomerIdx = idx;
+    const users = getUsers(); const u = users[idx];
+    document.getElementById('acEmail').value = u.email;
+    document.getElementById('acWhatsapp').value = u.whatsapp || '';
+    document.getElementById('acPassword').value = u.password || '';
+    document.getElementById('acFullName').value = u.fullName || '';
+    document.getElementById('acContact2').value = u.contactNumber2 || '';
+    document.getElementById('acCity').value = u.nearestCity || '';
+    if(document.getElementById('acProvince')) document.getElementById('acProvince').value = u.province || '';
+    document.getElementById('acDistrict').value = u.district || '';
+    document.getElementById('acAddress').value = u.deliveryAddress || '';
+    document.getElementById('customerModalTitle').innerHTML = '<i class="fas fa-user-edit"></i>Edit Customer';
+    document.getElementById('customerModalBtn').innerHTML = '<i class="fas fa-save"></i>Save Changes';
+    document.getElementById('customerModalBtn').onclick = () => saveCustomerEdit(idx);
+    openModal('addCustomerModal');
+}
+
+function saveCustomerEdit(idx) {
+    const users = getUsers(); const oldEmail = users[idx].email;
+    const newEmail = document.getElementById('acEmail').value.trim().toLowerCase();
+    if (!newEmail || !newEmail.endsWith('@gmail.com')) { toast('Valid Gmail required!', 'error'); return; }
+    users[idx].email = newEmail;
+    users[idx].whatsapp = document.getElementById('acWhatsapp').value.trim();
+    users[idx].password = document.getElementById('acPassword').value.trim();
+    users[idx].fullName = document.getElementById('acFullName').value.trim();
+    users[idx].contactNumber2 = document.getElementById('acContact2').value.trim();
+    users[idx].nearestCity = document.getElementById('acCity').value.trim();
+    users[idx].province = document.getElementById('acProvince')?.value || '';
+    users[idx].district = document.getElementById('acDistrict').value;
+    users[idx].deliveryAddress = document.getElementById('acAddress').value.trim();
+    localStorage.setItem('pickzone_users', JSON.stringify(users));
+    if (oldEmail !== newEmail) { const orders = getOrders(); orders.forEach(o => { if (o.email === oldEmail) o.email = newEmail }); localStorage.setItem('pickzone_orders', JSON.stringify(orders)); }
+    closeModal('addCustomerModal'); toast('Customer updated successfully!');
+    renderCustomers(); renderDashboard(); renderOrders();
+}
+
+function deleteCustomer(idx) {
+    if (!confirm('Delete this customer?')) return;
+    const users = getUsers(); users.splice(idx, 1);
+    localStorage.setItem('pickzone_users', JSON.stringify(users));
+    toast('Customer deleted!'); renderCustomers(); renderDashboard();
+}
+
+function renderProducts() {
+    const products = getProducts();
+    document.getElementById('productsTable').innerHTML = products.length ? products.map((p, i) => `<tr>
+<td style="font-weight:700;color:var(--primary)">${p.code}</td>
+<td style="font-weight:600">${p.title}</td>
+<td style="font-weight:700;color:var(--secondary)">LKR ${(p.price || 0).toLocaleString()}</td>
+<td>${(p.categories || []).map(c => `<span class="badge badge-road" style="margin:2px">${c}</span>`).join('')}</td>
+<td><div class="desc-preview" title="${(p.description || 'No description').replace(/"/g, '&quot;')}">${p.description || 'No description'}</div></td>
+<td><div style="display:flex;gap:4px">
+<button class="btn btn-primary btn-sm" onclick="viewProduct(${i})" title="View Details"><i class="fas fa-eye"></i></button>
+<button class="btn btn-warning btn-sm" onclick="editProduct(${i})" title="Edit"><i class="fas fa-edit"></i></button>
+<button class="btn btn-danger btn-sm" onclick="deleteProduct(${i})" title="Delete"><i class="fas fa-trash"></i></button>
+</div></td>
+</tr>`).join('') : '<tr><td colspan="6" class="empty"><i class="fas fa-box"></i><p>No products</p></td></tr>';
+}
+
+function viewProduct(idx) {
+    const products = getProducts();
+    const p = products[idx];
+    document.getElementById('productDetails').innerHTML = `
+<div style="margin-bottom:16px">
+<div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Product Code</div>
+<div style="font-size:16px;font-weight:700;color:var(--primary)">${p.code}</div>
+</div>
+<div style="margin-bottom:16px">
+<div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Title</div>
+<div style="font-size:16px;font-weight:700">${p.title}</div>
+</div>
+<div style="margin-bottom:16px">
+<div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Price</div>
+<div style="font-size:20px;font-weight:800;color:var(--secondary)">LKR ${(p.price || 0).toLocaleString()}</div>
+</div>
+<div style="margin-bottom:16px">
+<div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Categories</div>
+<div>${(p.categories || []).map(c => `<span class="badge badge-road" style="margin:2px">${c}</span>`).join('')}</div>
+</div>
+<div style="margin-bottom:16px">
+<div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Description</div>
+<div class="desc-full">${p.description || 'No description available'}</div>
+</div>
+<div style="margin-bottom:16px">
+<div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Images</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+${(p.images || []).map(img => `<img src="${img}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">`).join('')}
+</div>
+</div>
+`;
+    openModal('viewProductModal');
+}
+
+function openAddProductModal() {
+    editingProductIdx = -1;
+    ['apCode', 'apPrice', 'apTitle', 'apDescription', 'apCategories', 'apImages'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-plus-circle"></i>Add Product';
+    document.getElementById('productModalBtn').innerHTML = '<i class="fas fa-plus"></i>Add Product';
+    document.getElementById('productModalBtn').onclick = () => addProduct();
+    openModal('addProductModal');
+}
+
+function addProduct() {
+    const code = document.getElementById('apCode').value.trim();
+    const price = parseInt(document.getElementById('apPrice').value);
+    const title = document.getElementById('apTitle').value.trim();
+    const description = document.getElementById('apDescription').value.trim();
+    const categories = document.getElementById('apCategories').value.split(',').map(s => s.trim()).filter(Boolean);
+    const images = document.getElementById('apImages').value.split(',').map(s => s.trim()).filter(Boolean);
+    if (!code || !title || !price) { toast('Code, title, and price are required!', 'error'); return; }
+    const products = getProducts();
+    if (products.find(p => p.code === code)) { toast('Product code already exists!', 'error'); return; }
+    products.push({ code, title, price, description: description || '', categories, images: images.length ? images : ['https://picsum.photos/400/400?random=' + Date.now()] });
+    localStorage.setItem('pickzone_items', JSON.stringify(products));
+    closeModal('addProductModal'); toast('Product added!'); renderProducts(); renderDashboard();
+}
+
+function editProduct(idx) {
+    editingProductIdx = idx;
+    const products = getProducts();
+    const p = products[idx];
+    document.getElementById('apCode').value = p.code;
+    document.getElementById('apPrice').value = p.price;
+    document.getElementById('apTitle').value = p.title;
+    document.getElementById('apDescription').value = p.description || '';
+    document.getElementById('apCategories').value = (p.categories || []).join(', ');
+    document.getElementById('apImages').value = (p.images || []).join(', ');
+    document.getElementById('productModalTitle').innerHTML = '<i class="fas fa-edit"></i>Edit Product';
+    document.getElementById('productModalBtn').innerHTML = '<i class="fas fa-save"></i>Save Changes';
+    document.getElementById('productModalBtn').onclick = () => saveProductEdit(idx);
+    openModal('addProductModal');
+}
+
+function saveProductEdit(idx) {
+    const products = getProducts();
+    const oldCode = products[idx].code;
+    const newCode = document.getElementById('apCode').value.trim();
+    const price = parseInt(document.getElementById('apPrice').value);
+    const title = document.getElementById('apTitle').value.trim();
+    const description = document.getElementById('apDescription').value.trim();
+    const categories = document.getElementById('apCategories').value.split(',').map(s => s.trim()).filter(Boolean);
+    const images = document.getElementById('apImages').value.split(',').map(s => s.trim()).filter(Boolean);
+
+    if (!newCode || !title || !price) { toast('Code, title, and price are required!', 'error'); return; }
+
+    products[idx].code = newCode;
+    products[idx].price = price;
+    products[idx].title = title;
+    products[idx].description = description || '';
+    products[idx].categories = categories;
+    products[idx].images = images.length ? images : ['https://picsum.photos/400/400?random=' + Date.now()];
+
+    localStorage.setItem('pickzone_items', JSON.stringify(products));
+
+    if (oldCode !== newCode) {
+        const orders = getOrders();
+        orders.forEach(o => { if (o.items) { o.items.forEach(item => { if (item.code === oldCode) item.code = newCode }); } });
+        localStorage.setItem('pickzone_orders', JSON.stringify(orders));
+    }
+
+    closeModal('addProductModal'); toast('Product updated successfully!');
+    renderProducts(); renderDashboard();
+}
+
+function deleteProduct(idx) {
+    if (!confirm('Delete this product?')) return;
+    const products = getProducts(); products.splice(idx, 1);
+    localStorage.setItem('pickzone_items', JSON.stringify(products));
+    toast('Product deleted!'); renderProducts(); renderDashboard();
+}
+
+function renderNotifDropdowns() {
+    const users = getUsers(); const orders = getOrders();
+    document.getElementById('notifCustomer').innerHTML = '<option value="">-- Select Customer --</option>' + users.map(u => `<option value="${u.email}">${u.email}${u.fullName ? ' (' + u.fullName + ')' : ''}</option>`).join('');
+    document.getElementById('notifOrder').innerHTML = '<option value="">-- Select Order --</option>' + orders.map(o => `<option value="${o.id}">${o.id} - ${o.customer?.name || o.email}</option>`).join('');
+}
+
+function sendNotification() {
+    const email = document.getElementById('notifCustomer').value;
+    const orderId = document.getElementById('notifOrder').value;
+    const status = document.getElementById('notifStatus').value;
+    const title = document.getElementById('notifTitle').value.trim();
+    const message = document.getElementById('notifMessage').value.trim();
+    if (!email) { toast('Select a customer!', 'error'); return; }
+    if (!title && !message) { toast('Add a title or message!', 'error'); return; }
+    const notifs = getNotifs();
+    notifs.push({ email, orderId: orderId || '', status: status || '', title: title || 'Notification', message: message || '', read: false, createdAt: new Date().toISOString() });
+    localStorage.setItem('pickzone_notifications', JSON.stringify(notifs));
+    if (status && orderId) {
+        const orders = getOrders(); const oi = orders.findIndex(o => o.id === orderId);
+        if (oi >= 0) { if (!orders[oi].statusHistory) orders[oi].statusHistory = []; orders[oi].statusHistory.push({ from: orders[oi].status, to: status, customMsg: message || '', changedAt: new Date().toISOString(), changedBy: adminUser.email }); orders[oi].status = status; localStorage.setItem('pickzone_orders', JSON.stringify(orders)); }
+    }
+    document.getElementById('notifTitle').value = ''; document.getElementById('notifMessage').value = '';
+    toast('Notification sent!'); renderNotifications(); renderDashboard(); renderOrders();
+}
+
+function renderNotifications() {
+    const notifs = getNotifs(); const sorted = [...notifs].reverse();
+    document.getElementById('notifTable').innerHTML = sorted.length ? sorted.map((n, i) => {
+        const idx = notifs.length - 1 - i;
+        const bl = { pending: 'Pending', on_the_road: 'On Road', delivered: 'Delivered', cancelled: 'Cancelled', '': '—' };
+        return `<tr><td>${n.email}</td><td style="font-weight:600">${n.title || 'Notification'}</td><td>${n.status ? `<span class="badge badge-${n.status === 'on_the_road' ? 'road' : n.status}">${bl[n.status] || n.status}</span>` : '—'}</td><td>${new Date(n.createdAt).toLocaleString()}</td><td><button class="btn btn-danger btn-sm" onclick="deleteNotif(${idx})"><i class="fas fa-trash"></i></button></td></tr>`;
+    }).join('') : '<tr><td colspan="5" class="empty"><i class="fas fa-bell-slash"></i><p>No notifications sent</p></td></tr>';
+}
+
+function deleteNotif(idx) { const notifs = getNotifs(); notifs.splice(idx, 1); localStorage.setItem('pickzone_notifications', JSON.stringify(notifs)); toast('Notification deleted!'); renderNotifications(); }
+
+function renderArena() {
+    const messages = getMessages(); const sorted = [...messages].reverse();
+    document.getElementById('arenaMessages').innerHTML = sorted.length ? sorted.map((m, i) => `
+<div style="display:flex;gap:12px;padding:14px;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;transition:all 0.3s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+<img src="${m.profilePic || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(m.name || 'U') + '&background=6366f1&color=fff&size=64'}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0">
+<div style="flex:1">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+<span style="font-weight:700;font-size:14px">${m.name || 'User'}</span>
+<span style="font-size:11px;color:var(--text-secondary)">${new Date(m.time).toLocaleString()}</span>
+</div>
+<div style="font-size:13px;color:var(--text);line-height:1.6">${m.text || ''}</div>
+${m.attachment ? (m.attachmentType?.startsWith('video') ? `<video controls src="${m.attachment}" style="max-width:100%;border-radius:10px;margin-top:8px"></video>` : `<img src="${m.attachment}" style="max-width:100%;border-radius:10px;margin-top:8px">`) : ''}
+</div>
+<button class="btn btn-danger btn-sm" onclick="deleteMessage(${messages.length - 1 - i})" style="flex-shrink:0;align-self:start"><i class="fas fa-trash"></i></button>
+</div>`).join('') : '<div class="empty"><i class="fas fa-comments"></i><p>No messages in the arena</p></div>';
+}
+
+function deleteMessage(idx) { if (!confirm('Delete this message?')) return; const messages = getMessages(); messages.splice(idx, 1); localStorage.setItem('pickzone_messages', JSON.stringify(messages)); toast('Message deleted!'); renderArena(); }
+
+setInterval(() => { if (!adminUser) return; renderDashboard(); if (document.getElementById('sec-orders').classList.contains('active')) renderOrders(); if (document.getElementById('sec-customers').classList.contains('active')) renderCustomers(); if (document.getElementById('sec-products').classList.contains('active')) renderProducts(); if (document.getElementById('sec-notifications').classList.contains('active')) renderNotifications(); if (document.getElementById('sec-arena').classList.contains('active')) renderArena(); }, 5000);
+
+(function() { let t = localStorage.getItem('pickzone_theme') || 'dark'; document.body.setAttribute('data-theme', t); document.getElementById('themeIcon').className = t === 'dark' ? 'fas fa-sun' : 'fas fa-moon'; })();
+window.addEventListener('load',()=>{ setTimeout(syncCustomerHorizontalBar,80); });
+</script>
+
+<script id="pz-admin-main-site-bridge">
+(function(){
+  'use strict';
+  const SYNC_KEYS=['pickzone_orders','pickzone_users','pickzone_notifications','pickzone_products','pickzone_items'];
+  let ch=null;
+  try{ ch=new BroadcastChannel('pickzone_admin_sync_v1'); }catch(e){}
+  function signal(key){ try{ if(ch) ch.postMessage({type:'pickzone-admin-change',key,at:Date.now()}); }catch(e){} }
+  const rawSet=Storage.prototype.setItem;
+  if(!Storage.prototype.__pickzoneAdminWrapped){
+    Storage.prototype.setItem=function(key,value){
+      const out=rawSet.call(this,key,value);
+      if(SYNC_KEYS.includes(key)) signal(key);
+      return out;
+    };
+    Storage.prototype.__pickzoneAdminWrapped=true;
+  }
+  window.__pzAdminSignal=signal;
+
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function sessions(){try{const a=JSON.parse(localStorage.getItem('pickzone_active_sessions')||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+  function saveSessions(a){localStorage.setItem('pickzone_active_sessions',JSON.stringify(a));}
+  function renderSessions(){
+    const host=document.getElementById('pzActiveSessions'); if(!host)return;
+    const now=Date.now(), live=sessions().filter(s=>now-(Number(s.lastSeen)||0)<60000).sort((a,b)=>(b.lastSeen||0)-(a.lastSeen||0));
+    host.innerHTML=live.length?'<div class="pz-admin-session-list">'+live.map(s=>'<div class="pz-admin-session-row"><div class="pz-admin-session-user"><span class="pz-admin-session-dot"></span><div><div class="pz-admin-session-name">'+esc(s.name||s.email||'Customer')+'</div><div class="pz-admin-session-email">'+esc(s.email||'')+'</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="pz-admin-session-time">Active</span><button class="btn btn-danger btn-sm" onclick="forceCustomerLogout(\''+esc(s.email||'')+'\')"><i class="fas fa-right-from-bracket"></i> Sign Out</button></div></div>').join('')+'</div>':'<div class="empty" style="padding:20px"><i class="fas fa-user-clock"></i><p>No active customer sessions detected.</p></div>';
+  }
+  function ensureSessionPanel(){
+    if(document.getElementById('pzActiveSessions'))return;
+    const sec=document.getElementById('sec-customers');if(!sec)return;
+    const panel=document.createElement('div');panel.className='panel pz-admin-session-card';panel.innerHTML='<div class="panel-header"><h3><i class="fas fa-user-check"></i> Signed-In Customers</h3><div class="panel-actions"><span style="font-size:10px;color:var(--text-secondary)">Same-site active sessions</span><button class="btn btn-outline btn-sm" onclick="renderActiveCustomerSessions()"><i class="fas fa-rotate"></i>Refresh</button></div></div><div class="panel-body" id="pzActiveSessions"></div>';
+    sec.insertBefore(panel,sec.firstElementChild);renderSessions();
+  }
+  window.renderActiveCustomerSessions=function(){ensureSessionPanel();renderSessions()}
+  window.forceCustomerLogout=function(email){
+    if(!email)return;
+    let a={};try{a=JSON.parse(localStorage.getItem('pickzone_force_logout')||'{}')}catch(e){}
+    a[String(email).toLowerCase()]={at:Date.now(),nonce:Math.random().toString(36).slice(2)};
+    localStorage.setItem('pickzone_force_logout',JSON.stringify(a));
+    signal('pickzone_force_logout');
+    const list=sessions().filter(s=>String(s.email||'').toLowerCase()!==String(email).toLowerCase());saveSessions(list);signal('pickzone_active_sessions');
+    toast('Customer sign-out requested for '+email+'.');renderSessions();
+  };
+  if(ch){ch.onmessage=(e)=>{if(e?.data?.type==='pickzone-admin-change'){renderSessions();}}}
+  window.addEventListener('storage',e=>{if(['pickzone_users','pickzone_orders','pickzone_notifications','pickzone_active_sessions','pickzone_force_logout'].includes(e.key)){renderSessions();if(e.key==='pickzone_users'){try{renderCustomers();renderDashboard()}catch(_){} }if(e.key==='pickzone_orders'){try{renderOrders();renderDashboard()}catch(_){} }if(e.key==='pickzone_notifications'){try{renderNotifications()}catch(_){} }}});
+  setInterval(renderSessions,15000);
+  const oldShowSection=window.showSection;
+  window.showSection=function(id,el){const r=oldShowSection.apply(this,arguments);if(id==='customers')setTimeout(ensureSessionPanel,30);return r};
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(ensureSessionPanel,100),{once:true});
+})();
+</script>
+
+
+<style id="pz-admin-enhanced-css">
+.pz-admin-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.pz-admin-toolbar .search-input{max-width:320px}
+.pz-admin-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.pz-admin-kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.pz-admin-kpi::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--gradient)}
+.pz-admin-kpi .num{font-size:24px;font-weight:900;margin-top:4px}.pz-admin-kpi .label{font-size:10px;color:var(--text-secondary);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.pz-admin-selectionbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--border);margin-bottom:12px}
+.pz-admin-selectionbar .count{font-size:11px;color:var(--text-secondary);font-weight:700;margin-left:auto}
+.pz-admin-table th,.pz-admin-table td{vertical-align:middle}
+.pz-admin-status-dot{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800}.pz-admin-status-dot i{font-size:8px}.pz-admin-status-dot.active{color:var(--success)}.pz-admin-status-dot.inactive{color:var(--text-secondary)}
+.pz-bulk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.pz-bulk-card{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:14px}
+.pz-bulk-card h4{font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:7px}.pz-bulk-card p{font-size:11px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px}
+.pz-bulk-actions{display:flex;gap:8px;flex-wrap:wrap}.pz-bulk-actions .btn{flex:1;justify-content:center}
+.pz-price-preview{padding:10px 12px;border-radius:10px;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.15);font-size:11px;color:var(--text-secondary);margin-top:10px;line-height:1.5}
+.pz-products-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.pz-products-tools select,.pz-products-tools input{padding:9px 11px;border:1px solid var(--border);background:var(--bg);border-radius:10px;color:var(--text);font-size:12px}
+.pz-admin-note{padding:10px 12px;border-radius:10px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);font-size:11px;color:var(--text-secondary);margin-top:10px}
+@media(max-width:700px){.pz-admin-selectionbar .count{margin-left:0;width:100%}.pz-products-tools>*{width:100%}}
+</style>
+
+
+<script id="pz-enhanced-admin-controls">
+(function(){
+  'use strict';
+  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const money=v=>'LKR '+Number(v||0).toLocaleString('en-LK',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const norm=v=>String(v??'').trim().toLowerCase();
+  let customerFilter='all', customerSearch='', productSearch='', productSort='name-asc';
+  const selectedCustomers=window.__pzSelectedCustomers || (window.__pzSelectedCustomers=new Set());
+  const activeSessionEmails=()=>{try{return new Set(JSON.parse(localStorage.getItem('pickzone_active_sessions')||'[]').filter(s=>Date.now()-Number(s.lastSeen||0)<60000).map(s=>norm(s.email)))}catch(e){return new Set()}};
+  const users=()=>typeof getUsers==='function'?getUsers():[];
+  const orders=()=>typeof getOrders==='function'?getOrders():[];
+  const products=()=>typeof getProducts==='function'?getProducts():[];
+  const notifs=()=>typeof getNotifs==='function'?getNotifs():[];
+  function userOrders(email){return orders().filter(o=>norm(o.email)===norm(email))}
+  function customerTotal(email){return userOrders(email).reduce((s,o)=>s+Number(o.total||0),0)}
+  function customerItems(email){return userOrders(email).flatMap(o=>o.items||[])}
+  function renderCustomerManagement(){
+    const sec=document.getElementById('sec-customers'); if(!sec)return;
+    const us=users(), live=activeSessionEmails();
+    const visible=us.filter(u=>{
+      const active=live.has(norm(u.email)); const ord=userOrders(u.email);
+      const match=!customerSearch || [u.email,u.fullName,u.whatsapp,u.contactNumber2,u.nearestCity,u.province,u.district,u.deliveryAddress,u.addedBy].some(v=>norm(v).includes(customerSearch));
+      const f=customerFilter==='active'?active:customerFilter==='orders'?ord.length>0:customerFilter==='noorders'?ord.length===0:true;
+      return match&&f;
+    });
+    const totalOrders=us.reduce((s,u)=>s+userOrders(u.email).length,0);
+    const totalBuy=us.reduce((s,u)=>s+customerTotal(u.email),0);
+    sec.innerHTML=`
+      <div class="pz-admin-kpis">
+        <div class="pz-admin-kpi"><div class="label">All Members</div><div class="num">${us.length.toLocaleString()}</div></div>
+        <div class="pz-admin-kpi"><div class="label">Signed In Now</div><div class="num">${us.filter(u=>live.has(norm(u.email))).length.toLocaleString()}</div></div>
+        <div class="pz-admin-kpi"><div class="label">Members With Orders</div><div class="num">${us.filter(u=>userOrders(u.email).length>0).length.toLocaleString()}</div></div>
+        <div class="pz-admin-kpi"><div class="label">Total Orders</div><div class="num">${totalOrders.toLocaleString()}</div></div>
+        <div class="pz-admin-kpi"><div class="label">Total Customer Spend</div><div class="num">${money(totalBuy)}</div></div>
+      </div>
+      <div class="panel pz-customers-command-panel">
+        <div class="panel-header">
+          <div><h3><i class="fas fa-users"></i> Registered Customers</h3><div class="pz-subtle-line">Only essential customer fields are shown. Open More Details for full information.</div></div>
+          <div class="panel-actions"><div class="search-wrap"><i class="fas fa-search"></i><input id="pzCustomerSearch" class="search-input" placeholder="Search name or email..." value="${esc(customerSearch)}"></div><button class="btn btn-primary btn-sm" id="pzAddCustomerBtn"><i class="fas fa-user-plus"></i>Add Customer</button></div>
+        </div>
+        <div class="panel-body">
+          <div class="pz-admin-toolbar pz-customer-filterbar">
+            <select id="pzCustomerFilter"><option value="all">All Members</option><option value="active">Signed In Now</option><option value="orders">Has Orders</option><option value="noorders">No Orders Yet</option></select>
+            <button class="btn btn-outline btn-sm" id="pzSelectAllCustomers"><i class="fas fa-check-double"></i>Select All</button>
+            <button class="btn btn-outline btn-sm" id="pzClearCustomerSelection"><i class="fas fa-xmark"></i>Clear Selection</button>
+            <button class="btn btn-primary btn-sm" id="pzNotifySelected"><i class="fas fa-bell"></i>Notify Selected</button>
+            <button class="btn btn-success btn-sm" id="pzNotifyAll"><i class="fas fa-bullhorn"></i>Notify All</button>
+            <button class="btn btn-outline btn-sm" id="pzExportCustomers"><i class="fas fa-file-export"></i>Export CSV</button>
+            <span class="pz-customer-selection-count"><strong id="pzSelectedCustomerCount">0</strong> selected</span>
+          </div>
+          <div class="customer-table-wrap pz-compact-customer-table"><table class="pz-admin-table"><thead><tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>Actions</th></tr></thead><tbody id="pzEnhancedCustomersTable">${renderCompactCustomerRows(visible,live)}</tbody></table></div>
+        </div>
+      </div>`;
+    const filterEl=document.getElementById('pzCustomerFilter'); filterEl.value=customerFilter;
+    document.getElementById('pzCustomerSearch').addEventListener('input',e=>{customerSearch=norm(e.target.value);renderCustomerManagement()});
+    filterEl.addEventListener('change',e=>{customerFilter=e.target.value;renderCustomerManagement()});
+    document.getElementById('pzAddCustomerBtn').onclick=()=>openAddCustomerModal();
+    document.getElementById('pzSelectAllCustomers').onclick=()=>{
+      const allVisibleSelected=visible.length>0 && visible.every(u=>selectedCustomers.has(norm(u.email)));
+      visible.forEach(u=>{const em=norm(u.email);if(allVisibleSelected)selectedCustomers.delete(em);else selectedCustomers.add(em)});
+      renderCustomerManagement();
+    };
+    document.getElementById('pzClearCustomerSelection').onclick=()=>{selectedCustomers.clear();renderCustomerManagement()};
+    document.getElementById('pzNotifySelected').onclick=()=>openBulkNotifyModal('selected');
+    document.getElementById('pzNotifyAll').onclick=()=>openBulkNotifyModal('all');
+    document.getElementById('pzExportCustomers').onclick=()=>exportCustomersCsv(visible);
+    document.querySelectorAll('.pz-customer-check').forEach(cb=>cb.addEventListener('change',e=>{const em=norm(e.target.dataset.email);if(e.target.checked)selectedCustomers.add(em);else selectedCustomers.delete(em);updateSelectedCount()}));
+    updateSelectedCount();
+  }
+  function renderCompactCustomerRows(list,live){
+    if(!list.length)return '<tr><td colspan="4" class="empty"><i class="fas fa-users"></i><p>No customers match this filter.</p></td></tr>';
+    const us=users();
+    return list.map(u=>{
+      const idx=us.findIndex(x=>norm(x.email)===norm(u.email));
+      const name=escapeHtml(u.fullName||'Unnamed Customer'),email=escapeHtml(u.email||''),phone=escapeHtml(u.whatsapp||'-');
+      const initials=escapeHtml((u.fullName||u.email||'C').trim().slice(0,1).toUpperCase());
+      const photo=u.profilePic?`<img class="pz-compact-customer-photo" src="${escapeHtml(u.profilePic)}" alt="Customer" loading="lazy">`:`<span class="pz-compact-customer-fallback">${initials}</span>`;
+      const on=live.has(norm(u.email));
+      return `<tr><td><div class="pz-customer-name-cell">${photo}<div><div class="pz-customer-name">${name}</div><div class="pz-customer-status ${on?'online':'offline'}"><span></span>${on?'Online':'Offline'}</div></div></div></td><td><span class="pz-customer-email">${email}</span></td><td><span class="pz-customer-phone">${phone}</span></td><td><div class="pz-customer-actions"><input type="checkbox" class="pz-customer-check" data-email="${email}" ${selectedCustomers.has(norm(u.email))?'checked':''} aria-label="Select ${name}"><button class="btn btn-primary btn-sm pz-more-details-btn" onclick="viewCustomer(${idx})"><i class="fas fa-user-circle"></i> More Details</button><button class="btn btn-outline btn-sm" onclick="editCustomer(${idx})" title="Edit customer"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="deleteCustomer(${idx})" title="Delete customer"><i class="fas fa-trash"></i></button></div></td></tr>`;
+    }).join('');
+  }
+  function renderCustomerRows(list,live){
+    if(!list.length)return '<tr><td colspan="13" class="empty"><i class="fas fa-users"></i><p>No customers match this filter.</p></td></tr>';
+    const us=users();
+    return list.map(u=>{
+      const idx=us.findIndex(x=>norm(x.email)===norm(u.email)); const ord=userOrders(u.email); const on=live.has(norm(u.email));
+      const name=escapeHtml(u.fullName||'Unnamed Customer'); const email=escapeHtml(u.email||''); const photo=u.profilePic?`<img class="customer-row-photo" src="${escapeHtml(u.profilePic)}" alt="Customer">`:`<span class="customer-avatar-fallback">${escapeHtml((u.fullName||u.email||'C').trim().slice(0,1).toUpperCase())}</span>`;
+      return `<tr><td><input type="checkbox" class="pz-customer-check" data-email="${email}" ${selectedCustomers.has(norm(u.email))?'checked':''}></td>
+      <td><div class="customer-main">${photo}<div><div class="cm-name">${name}</div><div class="cm-email">${email}</div></div></div></td>
+      <td><span class="pz-admin-status-dot ${on?'active':'inactive'}"><i class="fas fa-circle"></i>${on?'Signed In':'Signed Up / Offline'}</span></td>
+      <td>${escapeHtml(u.whatsapp||'-')}</td><td>${escapeHtml(u.contactNumber2||'-')}</td><td>${escapeHtml(u.nearestCity||'-')}</td><td>${escapeHtml(u.province||'-')}</td><td>${escapeHtml(u.district||'-')}</td>
+      <td><strong>${ord.length}</strong></td><td><strong style="color:var(--secondary)">${money(customerTotal(u.email))}</strong></td><td>${formatDateSafe(u.createdAt)}</td><td>${escapeHtml(u.addedBy||'signup')}</td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="viewCustomer(${idx})" title="View"><i class="fas fa-eye"></i></button><button class="btn btn-outline btn-sm" onclick="editCustomer(${idx})" title="Edit"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="deleteCustomer(${idx})" title="Delete"><i class="fas fa-trash"></i></button></div></td></tr>`;
+    }).join('');
+  }
+  function updateSelectedCount(){const el=document.getElementById('pzSelectedCustomerCount');if(el)el.textContent=selectedCustomers.size}
+  window.exportCustomersCsv=function(list){
+    const rows=(list||users()).map(u=>[u.fullName||'',u.email||'',u.whatsapp||'',u.contactNumber2||'',u.nearestCity||'',u.province||'',u.district||'',u.deliveryAddress||'',userOrders(u.email).length,customerTotal(u.email),u.createdAt||'',u.addedBy||'signup']);
+    const csv=[['Name','Email','WhatsApp','Contact 2','City','Province','District','Delivery Address','Orders','Total Spend','Joined','Added By'],...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pickzone_registered_customers.csv';a.click();URL.revokeObjectURL(a.href);
+  };
+  function ensureBulkNotifyModal(){
+    if(document.getElementById('pzBulkNotifyModal'))return;
+    const m=document.createElement('div');m.className='modal-overlay';m.id='pzBulkNotifyModal';m.innerHTML=`<div class="modal-box" style="max-width:650px"><span class="modal-close" onclick="closeModal('pzBulkNotifyModal')"><i class="fas fa-times"></i></span><h3><i class="fas fa-bullhorn"></i>Bulk Member Notification</h3>
+      <div class="form-group"><label>Audience</label><select id="pzBulkAudience"><option value="all">All Signed-Up Members</option><option value="active">Signed-In Members Only</option><option value="selected">Selected Members</option></select></div>
+      <div class="form-group"><label>Title *</label><input id="pzBulkTitle" placeholder="Notification title"></div>
+      <div class="form-group"><label>Message *</label><textarea id="pzBulkMessage" rows="5" placeholder="Write the notification for your members..."></textarea></div>
+      <div class="pz-admin-note"><i class="fas fa-circle-info"></i> This creates a notification for every member in the chosen audience and uses the same shared notification store as the main PickZone site.</div>
+      <button class="btn btn-primary btn-lg" onclick="sendBulkMemberNotification()" style="width:100%;justify-content:center;margin-top:12px"><i class="fas fa-paper-plane"></i>Send Notification</button>
+    </div>`;document.body.appendChild(m);
+  }
+  window.openBulkNotifyModal=function(audience='all'){ensureBulkNotifyModal();document.getElementById('pzBulkAudience').value=audience;document.getElementById('pzBulkTitle').value='';document.getElementById('pzBulkMessage').value='';openModal('pzBulkNotifyModal')};
+  window.sendBulkMemberNotification=function(){
+    const audience=document.getElementById('pzBulkAudience').value,title=document.getElementById('pzBulkTitle').value.trim(),message=document.getElementById('pzBulkMessage').value.trim();
+    if(!title||!message){toast('Title and message are required.','error');return}
+    const live=activeSessionEmails(); let targets=users();
+    if(audience==='active')targets=targets.filter(u=>live.has(norm(u.email)));
+    if(audience==='selected')targets=targets.filter(u=>selectedCustomers.has(norm(u.email)));
+    const arr=notifs();const now=new Date().toISOString();targets.forEach(u=>arr.push({email:u.email,orderId:'',status:'',title,message,read:false,createdAt:now,bulk:true}));localStorage.setItem('pickzone_notifications',JSON.stringify(arr));
+    closeModal('pzBulkNotifyModal');toast(`Notification sent to ${targets.length} member${targets.length===1?'':'s'}.`);if(typeof renderNotifications==='function')renderNotifications();
+  };
+  function ensureEnhancedNotifications(){
+    const sec=document.getElementById('sec-notifications');if(!sec||document.getElementById('pzBulkNotifyCard'))return;
+    const panel=document.createElement('div');panel.id='pzBulkNotifyCard';panel.className='panel';panel.innerHTML=`<div class="panel-header"><h3><i class="fas fa-bullhorn"></i> Bulk Notification Center</h3><div class="panel-actions"><button class="btn btn-success btn-sm" onclick="openBulkNotifyModal('all')"><i class="fas fa-bullhorn"></i>Notify All Members</button></div></div><div class="panel-body"><div class="pz-bulk-grid"><div class="pz-bulk-card"><h4><i class="fas fa-users" style="color:var(--primary)"></i>All Members</h4><p>Send one notification to every registered account, whether currently signed in or not.</p><button class="btn btn-primary" onclick="openBulkNotifyModal('all')" style="width:100%;justify-content:center">Notify All</button></div><div class="pz-bulk-card"><h4><i class="fas fa-user-check" style="color:var(--success)"></i>Signed In Now</h4><p>Notify only members with a currently active same-site session.</p><button class="btn btn-success" onclick="openBulkNotifyModal('active')" style="width:100%;justify-content:center">Notify Active</button></div><div class="pz-bulk-card"><h4><i class="fas fa-user-tag" style="color:var(--accent)"></i>Selected Members</h4><p>Use the Customers section to select specific members, then send them one message.</p><button class="btn btn-warning" onclick="openBulkNotifyModal('selected')" style="width:100%;justify-content:center">Notify Selected</button></div></div></div>`;
+    sec.insertBefore(panel,sec.firstElementChild);
+  }
+  function sortProducts(arr){
+    return arr.slice().sort((a,b)=>{const av=(a.title||'').toLowerCase(),bv=(b.title||'').toLowerCase(),na=Number(a.price||0),nb=Number(b.price||0),sa=Number(a.stock||0),sb=Number(b.stock||0),da=Number(a.discount||0),db=Number(b.discount||0);switch(productSort){case 'name-desc':return bv.localeCompare(av);case 'code-asc':return String(a.code).localeCompare(String(b.code),undefined,{numeric:true});case 'code-desc':return String(b.code).localeCompare(String(a.code),undefined,{numeric:true});case 'price-asc':return na-nb;case 'price-desc':return nb-na;case 'stock-asc':return sa-sb;case 'stock-desc':return sb-sa;case 'discount-asc':return da-db;case 'discount-desc':return db-da;case 'category-asc':return String((a.categories||[])[0]||'').localeCompare(String((b.categories||[])[0]||''));default:return av.localeCompare(bv)}})
+  }
+  function renderEnhancedProducts(){
+    const sec=document.getElementById('sec-products');if(!sec)return;const ps=sortProducts(products()).filter(p=>!productSearch||[p.code,p.title,p.description,...(p.categories||[])].some(v=>norm(v).includes(productSearch)));
+    sec.innerHTML=`<div class="panel"><div class="panel-header"><h3><i class="fas fa-box"></i>Product Management</h3><div class="panel-actions"><button class="btn btn-primary btn-sm" onclick="openAddProductModal()"><i class="fas fa-plus"></i>Add Product</button></div></div><div class="panel-body">
+      <div class="pz-products-tools"><input id="pzProductSearch" placeholder="Search products..." value="${esc(productSearch)}"><select id="pzProductSort"><option value="name-asc">Name A → Z</option><option value="name-desc">Name Z → A</option><option value="code-asc">Code A → Z</option><option value="code-desc">Code Z → A</option><option value="price-asc">Price Low → High</option><option value="price-desc">Price High → Low</option><option value="stock-asc">Stock Low → High</option><option value="stock-desc">Stock High → Low</option><option value="discount-asc">Discount Low → High</option><option value="discount-desc">Discount High → Low</option><option value="category-asc">Category A → Z</option></select><span style="font-size:11px;color:var(--text-secondary)">${ps.length.toLocaleString()} products shown</span></div>
+      ${buildPriceTools()}
+      <div class="table-wrap"><table class="pz-admin-table"><thead><tr><th>Code</th><th>Product</th><th>Price</th><th>Other Price</th><th>Discount</th><th>Stock</th><th>Category</th><th>Actions</th></tr></thead><tbody>${ps.length?ps.map(p=>{const idx=products().findIndex(x=>String(x.code)===String(p.code));return `<tr><td style="font-weight:700;color:var(--primary)">${esc(p.code)}</td><td><div style="font-weight:700">${esc(p.title)}</div><div style="font-size:10px;color:var(--text-secondary)">${esc((p.description||'').slice(0,90))}</div></td><td style="font-weight:800;color:var(--secondary)">${money(p.price)}</td><td>${money(p.othersPrice)}</td><td>${Number(p.discount||0).toFixed(0)}%</td><td>${Number(p.stock||0)}</td><td>${esc((p.categories||[]).slice(0,2).join(', '))}</td><td><div style="display:flex;gap:4px"><button class="btn btn-primary btn-sm" onclick="viewProduct(${idx})"><i class="fas fa-eye"></i></button><button class="btn btn-warning btn-sm" onclick="editProduct(${idx})"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="deleteProduct(${idx})"><i class="fas fa-trash"></i></button></div></td></tr>`}).join(''):'<tr><td colspan="8" class="empty"><i class="fas fa-box-open"></i><p>No products found.</p></td></tr>'}</tbody></table></div>
+    </div></div>`;
+    const sel=document.getElementById('pzProductSort');sel.value=productSort;sel.onchange=e=>{productSort=e.target.value;renderEnhancedProducts()};document.getElementById('pzProductSearch').oninput=e=>{productSearch=norm(e.target.value);renderEnhancedProducts()};
+  }
+  function buildPriceTools(){
+    return `<div class="panel" style="margin-bottom:12px"><div class="panel-header"><h3><i class="fas fa-tags"></i>One-Click Bulk Price Changes</h3></div><div class="panel-body"><div class="pz-bulk-grid"><div class="pz-bulk-card"><h4>Quick Discount</h4><p>Apply a percentage discount to every product based on its Other Price when available.</p><div class="pz-bulk-actions"><button class="btn btn-primary" onclick="applyBulkPriceChange('discount',20)"><i class="fas fa-percent"></i>20% OFF All</button><button class="btn btn-outline" onclick="openCustomPriceAction('discount')">Custom %</button></div></div><div class="pz-bulk-card"><h4>Reduce Prices</h4><p>Subtract the same LKR amount from every product price.</p><div class="pz-bulk-actions"><button class="btn btn-warning" onclick="applyBulkPriceChange('decrease',10)">− LKR 10 All</button><button class="btn btn-outline" onclick="openCustomPriceAction('decrease')">Custom LKR</button></div></div><div class="pz-bulk-card"><h4>Increase Prices</h4><p>Add the same LKR amount to every product price.</p><div class="pz-bulk-actions"><button class="btn btn-success" onclick="applyBulkPriceChange('increase',10)">+ LKR 10 All</button><button class="btn btn-outline" onclick="openCustomPriceAction('increase')">Custom LKR</button></div></div></div><div class="pz-price-preview"><strong>How it works:</strong> prices are changed in the shared <code>pickzone_items</code> catalog. The main PickZone site reads this same catalog, and discount percentages are recalculated from Other Price where that field exists.</div></div></div>`;
+  }
+  window.applyBulkPriceChange=function(mode,value){
+    const amount=Number(value);if(!Number.isFinite(amount)||amount<0){toast('Enter a valid positive value.','error');return}
+    if(!confirm(`Apply this price change to ALL ${products().length.toLocaleString()} products?`))return;
+    const arr=products();arr.forEach(p=>{
+      const base=Number(p.price||0),other=Number(p.othersPrice||0);let next=base;
+      if(mode==='discount'){next=other>0?other*(1-amount/100):base*(1-amount/100)}
+      if(mode==='decrease')next=Math.max(0,base-amount);
+      if(mode==='increase')next=base+amount;
+      p.price=Math.round(next*100)/100;
+      if(other>0){p.discount=Math.max(0,Math.min(99,Math.round(((other-p.price)/other)*100)))}
+      else if(mode==='discount')p.discount=Math.max(0,Math.min(99,Math.round(amount)));
+    });
+    localStorage.setItem('pickzone_items',JSON.stringify(arr));localStorage.setItem('pickzone_price_admin_revision',String(Date.now()));
+    if(window.__pzAdminSignal)window.__pzAdminSignal('pickzone_items');
+    toast(mode==='discount'?`${amount}% discount applied to all products.`:`Price update applied to all products.`);renderEnhancedProducts();if(typeof renderDashboard==='function')renderDashboard();
+  };
+  window.openCustomPriceAction=function(mode){const label=mode==='discount'?'discount percentage':'LKR amount';const v=prompt(`Enter ${label}:`,mode==='discount'?'20':'10');if(v===null)return;applyBulkPriceChange(mode,Number(v))};
+
+  // Keep the existing section navigation, but route Customers / Products / Notifications through the enhanced UI.
+  const oldShowSection=window.showSection;
+  window.showSection=function(id,el){
+    const r=oldShowSection.apply(this,arguments);
+    if(id==='customers')setTimeout(renderCustomerManagement,0);
+    if(id==='products')setTimeout(renderEnhancedProducts,0);
+    if(id==='notifications')setTimeout(ensureEnhancedNotifications,0);
+    return r;
+  };
+  // Replace periodic render loops for the customer/product sections with lightweight 15s sync only while visible.
+  setInterval(()=>{if(!adminUser)return;if(document.getElementById('sec-customers')?.classList.contains('active'))renderCustomerManagement();if(document.getElementById('sec-products')?.classList.contains('active'))renderEnhancedProducts();},15000);
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{ensureBulkNotifyModal();ensureEnhancedNotifications();if(document.getElementById('sec-customers')?.classList.contains('active'))renderCustomerManagement();if(document.getElementById('sec-products')?.classList.contains('active'))renderEnhancedProducts()},120);},{once:true});
+})();
+</script>
+
+
+<style id="pz-admin-final-command-center-css">
+/* Final PickZone admin command-center polish */
+#sec-customers .customer-table-wrap{overflow:auto !important;border-radius:14px}
+#sec-customers .customer-table-wrap table{min-width:1450px !important;table-layout:auto !important}
+#sec-customers .customer-table-wrap th,#sec-customers .customer-table-wrap td{white-space:nowrap !important;word-break:normal !important;overflow-wrap:normal !important;font-size:11px !important;padding:10px 9px !important}
+.pz-best-customer-panel{position:relative;overflow:hidden;border:1px solid rgba(245,158,11,.26);background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(99,102,241,.06) 55%,rgba(236,72,153,.07));}
+.pz-best-customer-panel::before{content:"";position:absolute;inset:-35%;background:radial-gradient(circle,rgba(245,158,11,.11) 0%,transparent 55%);animation:pzBestGlow 4s ease-in-out infinite}
+@keyframes pzBestGlow{0%,100%{transform:scale(.9);opacity:.55}50%{transform:scale(1.1);opacity:1}}
+.pz-best-wrap{position:relative;z-index:1;display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center}
+.pz-best-avatar{position:relative;width:86px;height:86px;border-radius:24px;display:grid;place-items:center;background:var(--gradient);box-shadow:0 16px 40px rgba(245,158,11,.22);overflow:visible}
+.pz-best-avatar img,.pz-best-avatar .fallback{width:76px;height:76px;border-radius:20px;object-fit:cover;background:var(--card);display:grid;place-items:center;color:var(--text);font-size:28px;font-weight:900}
+
+@keyframes pzCrownFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-5px) rotate(3deg)}}
+.pz-best-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#b45309;font-weight:900;margin-bottom:4px}
+.pz-best-name{font-size:22px;font-weight:950;line-height:1.1}
+.pz-best-email{font-size:11px;color:var(--text-secondary);margin-top:4px}
+.pz-best-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.pz-best-stat{padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.42);border:1px solid rgba(99,102,241,.12);font-size:11px;font-weight:800}
+[data-theme="dark"] .pz-best-stat{background:rgba(15,23,42,.4)}
+.pz-best-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.pz-customer-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.pz-customer-overview .ov-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.pz-customer-overview .ov-label{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-secondary);font-weight:800}
+.pz-customer-overview .ov-value{font-size:23px;font-weight:950;margin-top:4px}
+.pz-customer-overview .ov-sub{font-size:10px;color:var(--text-secondary);margin-top:2px}
+.pz-customer-top-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.pz-customer-top-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;display:flex;gap:11px;align-items:center}
+.pz-customer-top-avatar{position:relative;flex:0 0 52px;width:52px;height:52px;border-radius:15px;background:var(--gradient);display:grid;place-items:center}
+.pz-customer-top-avatar img,.pz-customer-top-avatar .fallback{width:46px;height:46px;border-radius:13px;object-fit:cover;background:var(--bg);display:grid;place-items:center;font-weight:900}
+
+.pz-customer-top-name{font-weight:850;font-size:13px}.pz-customer-top-meta{font-size:10px;color:var(--text-secondary);margin-top:2px}.pz-customer-top-total{font-weight:900;color:var(--secondary);font-size:12px;margin-top:5px}
+@media(max-width:900px){.pz-best-wrap{grid-template-columns:auto 1fr}.pz-best-actions{grid-column:1/-1;justify-content:flex-start}.pz-customer-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.pz-customer-top-list{grid-template-columns:1fr}}
+@media(max-width:560px){.pz-best-wrap{grid-template-columns:1fr;text-align:center}.pz-best-avatar{margin:auto}.pz-best-actions{justify-content:center}.pz-customer-overview{grid-template-columns:1fr}.pz-best-stats{justify-content:center}}
+</style>
+
+<script id="pz-admin-final-command-center-js">
+(function(){
+  'use strict';
+  const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const norm=v=>String(v??'').trim().toLowerCase();
+  const money=v=>'LKR '+Number(v||0).toLocaleString('en-LK',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const safeUsers=()=>typeof getUsers==='function'?getUsers():[];
+  const safeOrders=()=>typeof getOrders==='function'?getOrders():[];
+  const liveEmails=()=>{try{return new Set(JSON.parse(localStorage.getItem('pickzone_active_sessions')||'[]').filter(s=>Date.now()-Number(s.lastSeen||0)<60000).map(s=>norm(s.email)))}catch(e){return new Set()}};
+
+  function orderStats(email){
+    const os=safeOrders().filter(o=>norm(o.email)===norm(email));
+    const items=os.reduce((n,o)=>n+(o.items||[]).reduce((m,i)=>m+Number(i.qty||i.quantity||1),0),0);
+    const spend=os.reduce((n,o)=>n+Number(o.total||0),0);
+    const sorted=os.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+    return {orders:os.length,items,spend,last:sorted[0]||null};
+  }
+
+  function bestCustomer(){
+    const us=safeUsers();
+    let best=null;
+    us.forEach(u=>{
+      const st=orderStats(u.email);
+      if(st.orders>0 && (!best || st.spend>best.stats.spend || (st.spend===best.stats.spend && st.orders>best.stats.orders)))best={user:u,stats:st};
+    });
+    return best;
+  }
+
+  window.renderBestCustomerCard=function(){
+    const dash=document.getElementById('sec-dashboard'); if(!dash)return;
+    let panel=document.getElementById('pzBestCustomerPanel');
+    if(!panel){
+      panel=document.createElement('div');panel.id='pzBestCustomerPanel';panel.className='panel pz-best-customer-panel';
+      const stats=document.getElementById('dashStats');
+      if(stats&&stats.parentNode)stats.insertAdjacentElement('afterend',panel); else dash.insertBefore(panel,dash.firstElementChild);
+    }
+    const best=bestCustomer();
+    if(!best){panel.innerHTML='<div class="panel-body"><div class="pz-best-wrap"><div><div class="pz-best-label">Top Customer</div><div class="pz-best-name">No customer orders yet</div><div class="pz-best-email">The best customer will appear after a customer places an order.</div></div></div></div>';return}
+    const u=best.user,st=best.stats;
+    const name=esc(u.fullName||'Unnamed Customer'), email=esc(u.email||''), initials=esc((u.fullName||u.email||'C').trim().slice(0,1).toUpperCase());
+    const photo=u.profilePic?`<img src="${esc(u.profilePic)}" alt="Customer">`:`<div class="fallback">${initials}</div>`;
+    const last=st.last?`${esc(st.last.id||'Order')} · ${esc(new Date(st.last.date||Date.now()).toLocaleDateString())}`:'-';
+    panel.innerHTML=`<div class="panel-body"><div class="pz-best-wrap">
+      <div class="pz-best-avatar">${photo}</div>
+      <div><div class="pz-best-label">🏆 Best Customer by Total Spend</div><div class="pz-best-name">${name}</div><div class="pz-best-email">${email}</div>
+        <div class="pz-best-stats"><span class="pz-best-stat">${st.orders} order${st.orders===1?'':'s'}</span><span class="pz-best-stat">${st.items} items purchased</span><span class="pz-best-stat">${money(st.spend)} total spend</span><span class="pz-best-stat">Last: ${last}</span></div>
+      </div></div>
+      <div class="pz-best-actions"><button class="btn btn-warning" onclick="openTopCustomerDetails('${esc(u.email)}')"><i class="fas fa-crown"></i> View Customer</button></div>
+    </div></div>`;
+  };
+
+  window.openTopCustomerDetails=function(email){
+    const us=safeUsers();const idx=us.findIndex(u=>norm(u.email)===norm(email));if(idx<0)return;
+    if(typeof viewCustomer==='function')viewCustomer(idx);
+  };
+
+  function customerOverview(){
+    const sec=document.getElementById('sec-customers');if(!sec)return;
+    let host=document.getElementById('pzCustomerOverviewHost');
+    if(!host){host=document.createElement('div');host.id='pzCustomerOverviewHost';sec.insertBefore(host,sec.firstElementChild)}
+    const us=safeUsers(),os=safeOrders(),live=liveEmails();
+    const totalSpend=os.reduce((s,o)=>s+Number(o.total||0),0);
+    const active=us.filter(u=>live.has(norm(u.email))).length;
+    const ordered=us.filter(u=>orderStats(u.email).orders>0).length;
+    const ranked=us.map(u=>({u,stats:orderStats(u.email)})).filter(x=>x.stats.orders>0).sort((a,b)=>b.stats.spend-a.stats.spend||b.stats.orders-a.stats.orders).slice(0,3);
+    host.innerHTML=`<div class="pz-customer-overview">
+      <div class="ov-card"><div class="ov-label">Registered Members</div><div class="ov-value">${us.length.toLocaleString()}</div><div class="ov-sub">All signed-up accounts</div></div>
+      <div class="ov-card"><div class="ov-label">Signed In Now</div><div class="ov-value">${active.toLocaleString()}</div><div class="ov-sub">Active same-site sessions</div></div>
+      <div class="ov-card"><div class="ov-label">Members With Orders</div><div class="ov-value">${ordered.toLocaleString()}</div><div class="ov-sub">Customers who purchased</div></div>
+      <div class="ov-card"><div class="ov-label">Total Customer Spend</div><div class="ov-value">${money(totalSpend)}</div><div class="ov-sub">Across all recorded orders</div></div>
+    </div>
+    <div class="pz-customer-top-list">${ranked.map((x,i)=>{const u=x.u,ini=esc((u.fullName||u.email||'C').trim().slice(0,1).toUpperCase());const photo=u.profilePic?`<img src="${esc(u.profilePic)}" alt="Customer">`:`<div class="fallback">${ini}</div>`;return `<div class="pz-customer-top-card"><div class="pz-customer-top-avatar">${photo}</div><div><div class="pz-customer-top-name">${esc(u.fullName||'Unnamed Customer')}</div><div class="pz-customer-top-meta">${esc(u.email||'')} · ${x.stats.orders} order${x.stats.orders===1?'':'s'} · ${x.stats.items} items</div><div class="pz-customer-top-total">${money(x.stats.spend)}</div></div></div>`}).join('')||'<div class="empty" style="grid-column:1/-1;padding:20px">No purchased customers yet.</div>'}</div>`;
+  }
+
+  // Re-inject the customer overview after the existing customer renderer replaces sec-customers.
+  const customerSec=document.getElementById('sec-customers');
+  if(customerSec){
+    const mo=new MutationObserver(()=>setTimeout(customerOverview,0));
+    mo.observe(customerSec,{childList:true});
+    setTimeout(customerOverview,120);
+  }
+
+  // Improve the wording of the bulk notification audience and make the all-members path explicit.
+  const oldEnsureBulk=window.ensureBulkNotifyModal;
+  window.__pzRefreshBulkNotificationCopy=function(){
+    const sel=document.getElementById('pzBulkAudience');
+    if(sel){
+      const all=sel.querySelector('option[value="all"]');if(all)all.textContent='All Members (Signed Up / Signed In)';
+      const active=sel.querySelector('option[value="active"]');if(active)active.textContent='Signed-In Members Now';
+    }
+  };
+
+  // Override bulk price discount semantics: percentage discounts apply to the current selling price.
+  window.applyBulkPriceChange=function(mode,value){
+    const amount=Number(value);
+    if(!Number.isFinite(amount)||amount<0){toast('Enter a valid non-negative value.','error');return}
+    const arr=typeof getProducts==='function'?getProducts():[];
+    const count=arr.length;
+    if(!count){toast('No products found.','error');return}
+    const label=mode==='discount'?`${amount}% discount to ALL ${count.toLocaleString()} products`:mode==='decrease'?`reduce ALL ${count.toLocaleString()} product prices by LKR ${amount}`:`increase ALL ${count.toLocaleString()} product prices by LKR ${amount}`;
+    if(!confirm(`Apply this change?\n\n${label}.`))return;
+    arr.forEach(p=>{
+      const base=Math.max(0,Number(p.price||0));
+      const other=Math.max(0,Number(p.othersPrice||0));
+      let next=base;
+      if(mode==='discount')next=base*(1-amount/100);
+      else if(mode==='decrease')next=Math.max(0,base-amount);
+      else if(mode==='increase')next=base+amount;
+      p.price=Math.round(next*100)/100;
+      if(other>0)p.discount=Math.max(0,Math.min(99,Math.round(((other-p.price)/other)*100)));
+      else p.discount=0;
+    });
+    localStorage.setItem('pickzone_items',JSON.stringify(arr));
+    localStorage.setItem('pickzone_price_admin_revision',String(Date.now()));
+    if(window.__pzAdminSignal)window.__pzAdminSignal('pickzone_items');
+    toast(mode==='discount'?`${amount}% discount applied to all products.`:`Prices updated for all products.`);
+    if(typeof window.renderEnhancedProducts==='function')window.renderEnhancedProducts();
+    if(typeof renderDashboard==='function')renderDashboard();
+  };
+
+  // Add a dashboard notification shortcut so bulk member notifications are always one click away.
+  function ensureDashboardNotifyShortcut(){
+    const dash=document.getElementById('sec-dashboard');if(!dash||document.getElementById('pzDashBulkNotify'))return;
+    const panel=document.createElement('div');panel.id='pzDashBulkNotify';panel.className='panel';panel.innerHTML=`<div class="panel-header"><h3><i class="fas fa-bullhorn"></i> Member Notifications</h3><div class="panel-actions"><button class="btn btn-success btn-sm" onclick="openBulkNotifyModal('all')"><i class="fas fa-paper-plane"></i>Notify All Members</button></div></div><div class="panel-body"><div class="pz-bulk-grid"><div class="pz-bulk-card"><h4>All Members</h4><p>Send one notification to every registered PickZone member, whether currently signed in or offline.</p></div><div class="pz-bulk-card"><h4>Signed-In Now</h4><p>Send only to customers with an active same-site session.</p></div><div class="pz-bulk-card"><h4>Selected Members</h4><p>Choose specific customers from the Registered Customers section.</p></div></div></div>`;
+    dash.appendChild(panel);
+  }
+
+  function initFinal(){
+    ensureDashboardNotifyShortcut();
+    renderBestCustomerCard();
+    customerOverview();
+    window.__pzRefreshBulkNotificationCopy();
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(initFinal,180),{once:true});
+  setInterval(()=>{
+    if(!window.adminUser && typeof adminUser==='undefined')return;
+    if(document.getElementById('sec-dashboard')?.classList.contains('active')){renderBestCustomerCard();ensureDashboardNotifyShortcut()}
+    if(document.getElementById('sec-customers')?.classList.contains('active'))customerOverview();
+    window.__pzRefreshBulkNotificationCopy();
+  },5000);
+})();
+</script>
+
+
+<script id="pz-admin-password-js">
+(function(){
+  'use strict';
+  window.clearAdminPasswordForm=function(){
+    ['pzCurrentAdminPassword','pzNewAdminPassword','pzConfirmAdminPassword'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+    const m=document.getElementById('pzPasswordChangeMsg');if(m){m.textContent='';m.className='pz-password-msg';}
+  };
+  window.changeAdminPassword=function(){
+    const cur=String(document.getElementById('pzCurrentAdminPassword')?.value||'');
+    const next=String(document.getElementById('pzNewAdminPassword')?.value||'');
+    const confirm=String(document.getElementById('pzConfirmAdminPassword')?.value||'');
+    const msg=document.getElementById('pzPasswordChangeMsg');
+    const show=(text,type)=>{if(msg){msg.textContent=text;msg.className='pz-password-msg '+type}};
+    if(!adminUser){show('Admin login is required to change the password.','error');return}
+    if(!cur||!next||!confirm){show('Please fill in all three password fields.','error');return}
+    const current=getAdminPassword();
+    if(cur!==current){show('The current password is incorrect.','error');return}
+    if(next.length<8){show('The new password must contain at least 8 characters.','error');return}
+    if(next!==confirm){show('The new password and confirmation do not match.','error');return}
+    if(next===current){show('Please choose a different password.','error');return}
+    try{
+      localStorage.setItem(ADMIN_PASSWORD_KEY,next);
+      show('Admin login password changed successfully.','success');
+      ['pzCurrentAdminPassword','pzNewAdminPassword','pzConfirmAdminPassword'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+      toast('Admin password updated successfully!');
+    }catch(e){show('Unable to save the new password in this browser.','error')}
+  };
+})();
+</script>
+
+<style id="pz-customers-compact-v4">
+#sec-customers .pz-admin-kpis{gap:8px;margin-bottom:10px}
+#sec-customers .pz-admin-kpi{padding:9px 11px;border-radius:12px}
+#sec-customers .pz-admin-kpi .num{font-size:20px;margin-top:2px}
+#sec-customers .pz-admin-kpi .label{font-size:9px;letter-spacing:.35px}
+#sec-customers .panel{margin-bottom:10px;border-radius:12px}
+#sec-customers .panel-header{padding:10px 13px;gap:7px}
+#sec-customers .panel-header h3{font-size:14px}
+#sec-customers .pz-subtle-line{display:none}
+#sec-customers .panel-body{padding:10px 12px}
+#sec-customers .pz-customer-filterbar{gap:5px;padding:6px 8px;margin-bottom:8px}
+#sec-customers .pz-customer-filterbar select{padding:7px 9px;font-size:10px}
+#sec-customers .pz-customer-filterbar .btn{padding:5px 8px;font-size:10px;border-radius:8px}
+#sec-customers .pz-customer-selection-count{font-size:10px}
+#sec-customers .pz-compact-customer-table th,#sec-customers .pz-compact-customer-table td{padding:8px 8px!important;font-size:11px!important;line-height:1.25}
+#sec-customers .pz-customer-name-cell{gap:7px}
+#sec-customers .pz-compact-customer-photo,#sec-customers .pz-compact-customer-fallback{width:34px;height:34px;flex-basis:34px;border-radius:10px}
+#sec-customers .pz-customer-name{font-size:12px}
+#sec-customers .pz-customer-status{margin-top:2px;font-size:8px}
+#sec-customers .pz-customer-actions{gap:4px}
+#sec-customers .pz-more-details-btn{padding:5px 8px;font-size:10px}
+#sec-customers .search-input{padding:7px 10px 7px 32px;font-size:11px;max-width:230px}
+#sec-customers .panel-actions{gap:5px}
+@media(max-width:900px){#sec-customers .pz-admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+
+<style id="pz-admin-v3-css">
+#pzAdminPasswordPanel{display:none!important}
+:root{--primary:#6366f1;--primary-dark:#4f46e5;--primary-light:#818cf8;--secondary:#ec4899;--accent:#f59e0b;--success:#10b981;--danger:#ef4444;--bg:#f8fafc;--card:#ffffff;--text:#111827;--text-secondary:#64748b;--border:#e2e8f0;--shadow:0 12px 40px rgba(99,102,241,.12);--gradient:linear-gradient(135deg,#6366f1 0%,#ec4899 100%);--gradient2:linear-gradient(135deg,#f59e0b 0%,#ec4899 100%);--gradient3:linear-gradient(135deg,#10b981 0%,#6366f1 100%)}
+[data-theme="dark"]{--bg:#07111f;--card:#0d1b2a;--text:#f8fafc;--text-secondary:#91a3b8;--border:#20374d;--shadow:0 16px 48px rgba(0,0,0,.28)}
+body{background:radial-gradient(circle at 20% 10%,rgba(99,102,241,.08),transparent 30%),radial-gradient(circle at 90% 80%,rgba(236,72,153,.07),transparent 28%),var(--bg)}
+.sidebar{background:linear-gradient(180deg,rgba(13,27,42,.98),rgba(7,17,31,.99));border-right:1px solid rgba(129,140,248,.16);box-shadow:18px 0 50px rgba(0,0,0,.18)}
+[data-theme="light"] .sidebar{background:linear-gradient(180deg,#fff,#f8fafc)}
+.nav-item.active{background:var(--gradient)}
+.topbar{background:rgba(13,27,42,.88);border-bottom-color:rgba(129,140,248,.15)}
+[data-theme="light"] .topbar{background:rgba(255,255,255,.9)}
+.stat-card,.panel,.pz-admin-kpi{box-shadow:var(--shadow)}
+.pz-account-hero{display:flex;align-items:center;gap:16px;padding:20px 22px;margin-bottom:16px;border:1px solid rgba(129,140,248,.2);border-radius:20px;background:linear-gradient(135deg,rgba(99,102,241,.10),rgba(236,72,153,.08));box-shadow:var(--shadow);position:relative;overflow:hidden}
+.pz-account-hero:after{content:"";position:absolute;inset:auto -15% -60% 35%;height:160px;background:radial-gradient(circle,rgba(99,102,241,.20),transparent 65%);pointer-events:none}
+.pz-account-hero-icon{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:var(--gradient);color:#fff;font-size:22px;box-shadow:0 10px 28px rgba(99,102,241,.32)}
+.pz-account-kicker{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;font-weight:900;color:var(--primary-light)}
+.pz-account-hero h2{font-size:23px;margin:4px 0 3px}.pz-account-hero p{font-size:11px;color:var(--text-secondary)}
+#pzCustomerOverviewHost{display:none!important}
+.pz-account-pill{margin-left:auto;padding:7px 10px;border-radius:999px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.22);color:var(--success);font-size:10px;font-weight:800;white-space:nowrap}
+.pz-account-pill i{font-size:7px;margin-right:4px}.pz-account-grid{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(360px,1.5fr);gap:16px}
+.pz-admin-profile-preview{display:flex;align-items:center;gap:14px;padding:4px 0 16px}.pz-admin-avatar-xl{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;background:var(--gradient);color:#fff;font-size:28px;box-shadow:0 14px 34px rgba(99,102,241,.26)}
+.pz-admin-profile-name{font-size:20px;font-weight:900}.pz-admin-profile-role{font-size:11px;color:var(--text-secondary);margin-top:3px}.pz-account-detail-list{display:grid;gap:10px}.pz-account-detail{display:flex;justify-content:space-between;gap:14px;padding:11px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--border);font-size:11px}.pz-account-detail span{color:var(--text-secondary)}.pz-online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 0 5px rgba(16,185,129,.10);margin-right:4px}
+.pz-security-panel{margin:0!important}.pz-password-actions{display:flex;gap:8px;flex-wrap:wrap}
+#sec-customers .pz-customer-filterbar{padding:10px 12px;border-radius:14px;background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.10)}
+#sec-customers .pz-customer-filterbar select{padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px}.pz-customer-selection-count{margin-left:auto;font-size:11px;color:var(--text-secondary)}
+.pz-compact-customer-table{overflow:hidden!important;border-radius:14px!important;border:1px solid var(--border)}.pz-compact-customer-table table{width:100%!important;min-width:0!important;table-layout:fixed!important}
+.pz-compact-customer-table th,.pz-compact-customer-table td{white-space:normal!important;word-break:break-word!important;overflow-wrap:anywhere!important;padding:12px 11px!important;font-size:12px!important;border-bottom:1px solid var(--border)}
+.pz-compact-customer-table th:nth-child(1){width:31%}.pz-compact-customer-table th:nth-child(2){width:27%}.pz-compact-customer-table th:nth-child(3){width:19%}.pz-compact-customer-table th:nth-child(4){width:23%}
+.pz-customer-name-cell{display:flex;align-items:center;gap:10px;min-width:0}.pz-compact-customer-photo,.pz-compact-customer-fallback{width:42px;height:42px;border-radius:13px;flex:0 0 42px;object-fit:cover;background:var(--gradient);display:grid;place-items:center;color:#fff;font-weight:900;box-shadow:0 8px 20px rgba(99,102,241,.18)}
+.pz-customer-name{font-size:13px;font-weight:850;line-height:1.25}.pz-customer-status{margin-top:4px;font-size:9px;font-weight:800;display:inline-flex;align-items:center;gap:5px}.pz-customer-status span{width:6px;height:6px;border-radius:50%;display:inline-block}.pz-customer-status.online{color:var(--success)} .pz-customer-status.online span{background:var(--success);box-shadow:0 0 0 4px rgba(16,185,129,.10)}.pz-customer-status.offline{color:var(--text-secondary)} .pz-customer-status.offline span{background:var(--text-secondary)}
+.pz-customer-email,.pz-customer-phone{font-weight:700;color:var(--text)}.pz-customer-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.pz-more-details-btn{box-shadow:0 8px 18px rgba(99,102,241,.18)}
+#customerDetailsModal{align-items:stretch!important;justify-content:flex-end!important;padding:0!important;background:rgba(0,0,0,.54);backdrop-filter:blur(7px)}
+#customerDetailsModal .modal-box{width:min(500px,96vw)!important;max-width:none!important;height:100%!important;max-height:none!important;border-radius:24px 0 0 24px!important;margin:0!important;padding:24px!important;overflow:auto!important;animation:pzCustomerDrawerIn .34s ease!important;box-shadow:-20px 0 60px rgba(0,0,0,.35)!important}
+@keyframes pzCustomerDrawerIn{from{transform:translateX(100%);opacity:.5}to{transform:translateX(0);opacity:1}}
+#customerDetailsModal .modal-box h3{position:sticky;top:0;z-index:2;padding-bottom:12px;background:linear-gradient(var(--card),var(--card))}
+.pz-best-avatar{box-shadow:0 0 0 4px rgba(245,158,11,.16),0 18px 50px rgba(245,158,11,.25)!important}
+50%{transform:translateX(-50%) translateY(-5px) rotate(2deg)}}50%{transform:scale(1.06);opacity:1}}#pzBestCustomerPanel .pz-best-label{color:#f59e0b!important}
+@media(max-width:900px){.pz-account-grid{grid-template-columns:1fr}.pz-account-pill{display:none}}@media(max-width:680px){.pz-customer-selection-count{width:100%;margin-left:0}.pz-compact-customer-table th:nth-child(1){width:35%}.pz-compact-customer-table th:nth-child(2){width:28%}.pz-compact-customer-table th:nth-child(3){width:19%}.pz-compact-customer-table th:nth-child(4){width:18%}.pz-customer-actions{justify-content:flex-start}.pz-more-details-btn{flex:1}}
+.pz-settings-security-panel{margin-top:16px;background:linear-gradient(135deg,rgba(99,102,241,.055),rgba(16,185,129,.045));border-color:rgba(99,102,241,.18)}
+.pz-settings-password-grid{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(360px,1.4fr);gap:18px;align-items:start}
+.pz-settings-password-copy{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--bg)}
+.pz-settings-password-icon{width:44px;height:44px;flex:0 0 44px;border-radius:12px;display:grid;place-items:center;background:var(--gradient);color:#fff;box-shadow:0 8px 22px rgba(99,102,241,.22)}
+.pz-settings-password-copy h4{font-size:14px;margin-bottom:4px}.pz-settings-password-copy p{font-size:11px;line-height:1.6;color:var(--text-secondary)}
+.pz-settings-password-form{min-width:0}.pz-settings-password-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.pz-settings-password-fields .form-group{margin-bottom:4px}
+.pz-settings-password-fields input{font-size:12px;padding:10px 11px}
+@media(max-width:900px){.pz-settings-password-grid{grid-template-columns:1fr}.pz-settings-password-fields{grid-template-columns:1fr}}
+</style>
+
+<script id="pz-admin-v3-js">
+(function(){
+  'use strict';
+  const esc=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
+  const norm=v=>String(v??'').trim().toLowerCase();
+  const money=v=>'LKR '+Number(v||0).toLocaleString('en-LK',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const users=()=>typeof getUsers==='function'?getUsers():[];
+  const activeSessionEmails=()=>{try{return new Set(JSON.parse(localStorage.getItem('pickzone_active_sessions')||'[]').filter(s=>Date.now()-Number(s.lastSeen||0)<60000).map(s=>norm(s.email)))}catch(e){return new Set()}};
+  const orders=()=>typeof getOrders==='function'?getOrders():[];
+  const userOrders=email=>orders().filter(o=>norm(o.email)===norm(email));
+  const customerTotal=email=>userOrders(email).reduce((s,o)=>s+Number(o.total||0),0);
+  const selectedCustomers=window.__pzSelectedCustomers || (window.__pzSelectedCustomers=new Set());
+  let customerFilter=window.__pzCustomerFilter || 'all', customerSearch=window.__pzCustomerSearch || '';
+  const updateSelectedCount=()=>{const el=document.getElementById('pzSelectedCustomerCount');if(el)el.textContent=selectedCustomers.size};
+  function ensureDarkDefault(){try{if(!localStorage.getItem('pickzone_theme')){document.body.setAttribute('data-theme','dark');const icon=document.getElementById('themeIcon');if(icon)icon.className='fas fa-sun'}}catch(e){}}
+
+  function renderCompactCustomerRows(list,live){
+    if(!list.length)return '<tr><td colspan="4" class="empty"><i class="fas fa-users"></i><p>No customers match this filter.</p></td></tr>';
+    const us=users();
+    return list.map(u=>{
+      const idx=us.findIndex(x=>norm(x.email)===norm(u.email));
+      const name=escapeHtml(u.fullName||'Unnamed Customer'),email=escapeHtml(u.email||''),phone=escapeHtml(u.whatsapp||'-');
+      const initials=escapeHtml((u.fullName||u.email||'C').trim().slice(0,1).toUpperCase());
+      const photo=u.profilePic?`<img class="pz-compact-customer-photo" src="${escapeHtml(u.profilePic)}" alt="Customer" loading="lazy">`:`<span class="pz-compact-customer-fallback">${initials}</span>`;
+      const on=live.has(norm(u.email));
+      return `<tr><td><div class="pz-customer-name-cell">${photo}<div><div class="pz-customer-name">${name}</div><div class="pz-customer-status ${on?'online':'offline'}"><span></span>${on?'Online':'Offline'}</div></div></div></td><td><span class="pz-customer-email">${email}</span></td><td><span class="pz-customer-phone">${phone}</span></td><td><div class="pz-customer-actions"><input type="checkbox" class="pz-customer-check" data-email="${email}" ${selectedCustomers.has(norm(u.email))?'checked':''} aria-label="Select ${name}"><button class="btn btn-primary btn-sm pz-more-details-btn" onclick="viewCustomer(${idx})"><i class="fas fa-user-circle"></i> More Details</button><button class="btn btn-outline btn-sm" onclick="editCustomer(${idx})" title="Edit customer"><i class="fas fa-edit"></i></button><button class="btn btn-danger btn-sm" onclick="deleteCustomer(${idx})" title="Delete customer"><i class="fas fa-trash"></i></button></div></td></tr>`;
+    }).join('');
+  }
+  window.renderCompactCustomers=function(){
+    const sec=document.getElementById('sec-customers'); if(!sec)return;
+    const us=users(),live=activeSessionEmails();
+    const visible=us.filter(u=>{
+      const active=live.has(norm(u.email));const ord=userOrders(u.email);
+      const match=!customerSearch || [u.email,u.fullName,u.whatsapp,u.contactNumber2,u.nearestCity,u.province,u.district,u.deliveryAddress,u.addedBy].some(v=>norm(v).includes(customerSearch));
+      const f=customerFilter==='active'?active:customerFilter==='orders'?ord.length>0:customerFilter==='noorders'?ord.length===0:true;return match&&f;
+    });
+    const totalOrders=us.reduce((s,u)=>s+userOrders(u.email).length,0),totalBuy=us.reduce((s,u)=>s+customerTotal(u.email),0);
+    sec.innerHTML=`<div class="pz-admin-kpis"><div class="pz-admin-kpi"><div class="label">All Members</div><div class="num">${us.length.toLocaleString()}</div></div><div class="pz-admin-kpi"><div class="label">Signed In Now</div><div class="num">${us.filter(u=>live.has(norm(u.email))).length.toLocaleString()}</div></div><div class="pz-admin-kpi"><div class="label">Members With Orders</div><div class="num">${us.filter(u=>userOrders(u.email).length>0).length.toLocaleString()}</div></div><div class="pz-admin-kpi"><div class="label">Total Orders</div><div class="num">${totalOrders.toLocaleString()}</div></div><div class="pz-admin-kpi"><div class="label">Total Customer Spend</div><div class="num">${money(totalBuy)}</div></div></div><div class="panel pz-customers-command-panel"><div class="panel-header"><div><h3><i class="fas fa-users"></i> Registered Customers</h3><div class="pz-subtle-line">Only essential customer fields are shown. Open More Details for full information.</div></div><div class="panel-actions"><div class="search-wrap"><i class="fas fa-search"></i><input id="pzCustomerSearch" class="search-input" placeholder="Search name or email..." value="${esc(customerSearch)}"></div><button class="btn btn-primary btn-sm" id="pzAddCustomerBtn"><i class="fas fa-user-plus"></i>Add Customer</button></div></div><div class="panel-body"><div class="pz-admin-toolbar pz-customer-filterbar"><select id="pzCustomerFilter"><option value="all">All Members</option><option value="active">Signed In Now</option><option value="orders">Has Orders</option><option value="noorders">No Orders Yet</option></select><button class="btn btn-outline btn-sm" id="pzSelectAllCustomers"><i class="fas fa-check-double"></i>Select All</button><button class="btn btn-outline btn-sm" id="pzClearCustomerSelection"><i class="fas fa-xmark"></i>Clear Selection</button><button class="btn btn-primary btn-sm" id="pzNotifySelected"><i class="fas fa-bell"></i>Notify Selected</button><button class="btn btn-success btn-sm" id="pzNotifyAll"><i class="fas fa-bullhorn"></i>Notify All</button><button class="btn btn-outline btn-sm" id="pzExportCustomers"><i class="fas fa-file-export"></i>Export CSV</button><span class="pz-customer-selection-count"><strong id="pzSelectedCustomerCount">0</strong> selected</span></div><div class="customer-table-wrap pz-compact-customer-table"><table class="pz-admin-table"><thead><tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>Actions</th></tr></thead><tbody id="pzEnhancedCustomersTable">${renderCompactCustomerRows(visible,live)}</tbody></table></div></div></div>`;
+    const filterEl=document.getElementById('pzCustomerFilter');filterEl.value=customerFilter;
+    document.getElementById('pzCustomerSearch').addEventListener('input',e=>{customerSearch=norm(e.target.value);window.__pzCustomerSearch=customerSearch;renderCompactCustomers()});
+    filterEl.addEventListener('change',e=>{customerFilter=e.target.value;window.__pzCustomerFilter=customerFilter;renderCompactCustomers()});
+    document.getElementById('pzAddCustomerBtn').onclick=()=>openAddCustomerModal();
+    document.getElementById('pzSelectAllCustomers').onclick=()=>{
+      const allVisibleSelected=visible.length>0 && visible.every(u=>selectedCustomers.has(norm(u.email)));
+      visible.forEach(u=>{const em=norm(u.email);if(allVisibleSelected)selectedCustomers.delete(em);else selectedCustomers.add(em)});
+      renderCompactCustomers();
+    };
+    document.getElementById('pzClearCustomerSelection').onclick=()=>{selectedCustomers.clear();renderCompactCustomers()};
+    document.getElementById('pzNotifySelected').onclick=()=>openBulkNotifyModal('selected');
+    document.getElementById('pzNotifyAll').onclick=()=>openBulkNotifyModal('all');
+    document.getElementById('pzExportCustomers').onclick=()=>exportCustomersCsv(visible);
+    document.querySelectorAll('.pz-customer-check').forEach(cb=>cb.addEventListener('change',e=>{const em=norm(e.target.dataset.email);if(e.target.checked)selectedCustomers.add(em);else selectedCustomers.delete(em);updateSelectedCount()}));
+    const selectAllBtn=document.getElementById('pzSelectAllCustomers');
+    if(selectAllBtn){
+      const allVisibleSelected=visible.length>0 && visible.every(u=>selectedCustomers.has(norm(u.email)));
+      selectAllBtn.innerHTML=allVisibleSelected?'<i class="fas fa-square-minus"></i>Deselect All':'<i class="fas fa-check-double"></i>Select All';
+      selectAllBtn.disabled=visible.length===0;
+    }
+    updateSelectedCount();
+  };
+
+  window.renderBestCustomerCard=function(){
+    const dash=document.getElementById('sec-dashboard');if(!dash)return;let panel=document.getElementById('pzBestCustomerPanel');
+    if(!panel){panel=document.createElement('div');panel.id='pzBestCustomerPanel';panel.className='panel pz-best-customer-panel';const stats=document.getElementById('dashStats');if(stats&&stats.parentNode)stats.insertAdjacentElement('afterend',panel);else dash.insertBefore(panel,dash.firstElementChild)}
+    const us=getUsers(),os=getOrders();let best=null;
+    us.forEach(u=>{const mine=os.filter(o=>customerEmailMatch(o.email,u.email));const spend=mine.reduce((s,o)=>s+Number(o.total||0),0);const items=mine.reduce((s,o)=>s+(o.items||[]).reduce((n,i)=>n+Number(i.qty||i.quantity||1),0),0);if(mine.length&&(!best||spend>best.spend||(spend===best.spend&&mine.length>best.orders)))best={u,spend,orders:mine.length,items,last:mine.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0))[0]}});
+    if(!best){panel.innerHTML='<div class="panel-body"><div class="pz-best-wrap"><div><div class="pz-best-label">Best Customer</div><div class="pz-best-name">No purchased customer yet</div><div class="pz-best-email">The best customer will appear after the first order is recorded.</div></div></div></div>';return}
+    const u=best.u,name=escapeHtml(u.fullName||'Unnamed Customer'),email=escapeHtml(u.email||''),initials=escapeHtml((u.fullName||u.email||'C').trim().slice(0,1).toUpperCase());
+    const photo=u.profilePic?`<img src="${escapeHtml(u.profilePic)}" alt="Customer">`:`<div class="fallback">${initials}</div>`;
+    const last=best.last?`${escapeHtml(best.last.id||'Order')} · ${escapeHtml(formatDateSafe(best.last.date||Date.now()))}`:'-';
+    panel.innerHTML=`<div class="panel-body"><div class="pz-best-wrap"><div class="pz-best-avatar">${photo}</div><div><div class="pz-best-label"><i class="fas fa-crown"></i> Best Customer by Total Spend</div><div class="pz-best-name">${name}</div><div class="pz-best-email">${email}</div><div class="pz-best-stats"><span class="pz-best-stat">${best.orders} order${best.orders===1?'':'s'}</span><span class="pz-best-stat">${best.items} items purchased</span><span class="pz-best-stat">${money(best.spend)} total spend</span><span class="pz-best-stat">Last: ${last}</span></div></div><div class="pz-best-actions"><button class="btn btn-warning" onclick="openTopCustomerDetails('${email}')"><i class="fas fa-user-tie"></i> View Customer</button></div></div></div>`;
+  };
+  function ensureDarkDefault(){try{if(!localStorage.getItem('pickzone_theme')){document.body.setAttribute('data-theme','dark');const icon=document.getElementById('themeIcon');if(icon)icon.className='fas fa-sun'}}catch(e){}}
+  function styleCustomerDrawer(){const modal=document.getElementById('customerDetailsModal');if(modal)modal.classList.add('pz-customer-drawer-overlay')}
+
+  function enforceSettingsOnlyPasswordPanel(){
+    const panel=document.querySelector('.pz-settings-security-panel');
+    const settings=document.getElementById('sec-settings');
+    if(!panel||!settings)return;
+    // Keep the password UI physically inside Settings and hidden everywhere else.
+    if(panel.parentElement!==settings) settings.appendChild(panel);
+    panel.style.display=settings.classList.contains('active')?'':'none';
+  }
+
+  const baseShowSection=window.showSection;
+  window.showSection=function(id,el){
+    enforceSettingsOnlyPasswordPanel();
+    const result=baseShowSection.apply(this,arguments);
+    enforceSettingsOnlyPasswordPanel();
+    if(id==='customers')setTimeout(renderCompactCustomers,0);
+    return result;
+  };
+  window.clearAdminPasswordSettingsForm=function(){['pzCurrentAdminPasswordSettings','pzNewAdminPasswordSettings','pzConfirmAdminPasswordSettings'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});const m=document.getElementById('pzPasswordChangeMsgSettings');if(m){m.textContent='';m.className='pz-password-msg'}};
+  window.changeAdminPasswordFromSettings=function(){
+    const cur=String(document.getElementById('pzCurrentAdminPasswordSettings')?.value||''),next=String(document.getElementById('pzNewAdminPasswordSettings')?.value||''),confirm=String(document.getElementById('pzConfirmAdminPasswordSettings')?.value||''),msg=document.getElementById('pzPasswordChangeMsgSettings');
+    const show=(t,type)=>{if(msg){msg.textContent=t;msg.className='pz-password-msg '+type}};
+    if(!adminUser){show('Admin login is required to change the password.','error');return}
+    const current=getAdminPassword();
+    if(!cur||!next||!confirm){show('Please fill in all three password fields.','error');return}
+    if(cur!==current){show('The current password is incorrect.','error');return}
+    if(next.length<8){show('The new password must contain at least 8 characters.','error');return}
+    if(next!==confirm){show('The new password and confirmation do not match.','error');return}
+    if(next===current){show('Please choose a different password.','error');return}
+    try{localStorage.setItem(ADMIN_PASSWORD_KEY,next);show('Admin login password changed successfully.','success');clearAdminPasswordSettingsForm();toast('Admin password updated successfully!')}catch(e){show('Unable to save the new password in this browser.','error')}
+  };
+
+  function hideLegacyPasswordPanel(){const old=document.getElementById('pzAdminPasswordPanel');if(old)old.style.display='none'}
+  document.addEventListener('DOMContentLoaded',()=>{ensureDarkDefault();hideLegacyPasswordPanel();styleCustomerDrawer();enforceSettingsOnlyPasswordPanel();renderBestCustomerCard();if(document.getElementById('sec-customers')?.classList.contains('active'))renderCompactCustomers()},{once:true});
+  setTimeout(()=>{ensureDarkDefault();hideLegacyPasswordPanel();styleCustomerDrawer();enforceSettingsOnlyPasswordPanel();renderBestCustomerCard()},150);
+})();
+</script>
+
+
+<style id="pz-customer-fit-window-final">
+/* Final customer sizing: narrower than full page while always fitting the available window. */
+#sec-customers .pz-customers-command-panel,
+#sec-customers .pz-admin-kpis,
+#sec-customers .pz-compact-customer-table{
+  width:100% !important;
+  max-width:1000px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+#sec-customers .pz-admin-kpis{
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:12px !important;
+}
+#sec-customers .pz-admin-kpi{
+  min-width:0 !important;
+}
+#sec-customers .pz-compact-customer-table{
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+}
+#sec-customers .pz-compact-customer-table table{
+  width:100% !important;
+  min-width:760px !important;
+  max-width:100% !important;
+  table-layout:fixed !important;
+}
+#sec-customers .pz-compact-customer-table th:nth-child(1){width:28% !important}
+#sec-customers .pz-compact-customer-table th:nth-child(2){width:30% !important}
+#sec-customers .pz-compact-customer-table th:nth-child(3){width:18% !important}
+#sec-customers .pz-compact-customer-table th:nth-child(4){width:24% !important}
+#sec-customers .pz-compact-customer-table th,
+#sec-customers .pz-compact-customer-table td{
+  box-sizing:border-box !important;
+  padding:10px 12px !important;
+  font-size:13px !important;
+  line-height:1.4 !important;
+}
+
+@media(max-width:1050px){
+  #sec-customers .pz-customers-command-panel,
+  #sec-customers .pz-admin-kpis,
+  #sec-customers .pz-compact-customer-table{max-width:100% !important}
+  #sec-customers .pz-admin-kpis{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+}
+@media(max-width:680px){
+  #sec-customers .pz-admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+  #sec-customers .pz-compact-customer-table table{min-width:760px !important}
+}
+@media(max-width:480px){
+  #sec-customers .pz-admin-kpis{grid-template-columns:1fr !important}
+}
+</style>
+
+<script src="/pickzone-db-client.js"></script>
+</body>
+</html>
